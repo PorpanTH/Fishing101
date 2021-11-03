@@ -1,6 +1,6 @@
 
 from flask import Flask, render_template, request, redirect, session
-# from flask_session import Session
+from flask_session import Session
 import datetime
 from tempfile import mkdtemp
 import mysql.connector
@@ -11,10 +11,10 @@ from werkzeug.exceptions import default_exceptions, HTTPException, InternalServe
 
 app = Flask(__name__)
 
-# app.config["SESSION_FILE_DIR"] = mkdtemp()
-# app.config["SESSION_PERMANENT"] = False
-# app.config["SESSION_TYPE"] = "filesystem"
-# Session(app)
+app.config["SESSION_FILE_DIR"] = mkdtemp()
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 @app.route("/", methods=['GET', 'POST'])
 @login_required
@@ -60,7 +60,7 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # session.clear()
+    session.clear()
     if request.method == 'POST':
 
         global username; username = request.form['email']
@@ -80,7 +80,7 @@ def login():
         data = []
         for row in results:
             data.append(row[0])
-        # session["user_id"] = data
+        session["user_id"] = data
 
 
         return redirect("/")
@@ -107,7 +107,7 @@ def register():
                 return apology("username already exists", 403)
             else:
                 found = 1
-
+                username = request.form['email']
                 firstname = request.form['firstname']
                 lastname = request.form['lastname']
                 password = request.form['password']
@@ -121,7 +121,7 @@ def register():
                             (username,firstname, lastname, password)
                             VALUES (%s, %s, %s, %s)"""
                 prim_key = cursor.execute(insertData, (username, firstname, lastname, password))
-                # session["user_id"] = prim_key
+                session["user_id"] = prim_key
                 cnx.commit()
                 return redirect("/")
     return render_template('register.html')
@@ -131,7 +131,7 @@ def logout():
     """Log user out"""
 
     # Forget any user_id
-    # session.clear()
+    session.clear()
 
     # Redirect user to login form
     return redirect("/")
