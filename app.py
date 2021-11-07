@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, session
-from flask_mysqldb import MySQL
+# from flask_mysqldb import MySQL
 from flask_session import Session
 import datetime
 from tempfile import mkdtemp
@@ -20,9 +20,8 @@ app.config['MYSQL_USER'] = 'ba74ba05397a99'
 app.config['MYSQL_PASSWORD'] = 'b48cfd68'
 app.config['MYSQL_HOST'] = 'us-cdbr-east-04.cleardb.com'
 app.config['MYSQL_DB'] = 'heroku_5e2677edc19745f'
-app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
-mysql = MySQL(app)
+# mysql = MySQL(app)
 
 @app.route("/", methods=['GET', 'POST'])
 @login_required
@@ -74,7 +73,11 @@ def login():
         global username; username = request.form['email']
         password = request.form['password']
 
-        cursor = mysql.connection.cursor()
+        cnx = mysql.connector.connect(host='127.0.0.1',
+                                      user='root',
+                                      passwd='Porpan!12345',
+                                      database='weather_schema')
+        cursor =cnx.cursor()
         find_user = "select * from weather_schema.user1 where username = %s AND password = %s"
         cursor.execute(find_user, (username, password))
         results = cursor.fetchall()
@@ -84,8 +87,7 @@ def login():
         for row in results:
             data.append(row[0])
         session["user_id"] = data
-
-
+        cursor.close()
         return redirect("/")
 
     else:
@@ -141,11 +143,11 @@ def logout():
 
 def graph(x, y):
     print("Connecting to mysql database")
-    # cnx = mysql.connector.connect(host='127.0.0.1',
-    #                               user='root',
-    #                               passwd='Porpan!12345',
-    #                               database='weather_schema')
-    cursor = mysql.connection.cursor()
+    cnx = mysql.connector.connect(host='127.0.0.1',
+                                  user='root',
+                                  passwd='Porpan!12345',
+                                  database='weather_schema')
+    cursor = cnx.cursor()
     sql_select_Query = "select datetime, score from weather_schema.weather_storm where datetime BETWEEN %s AND %s"
     cursor.execute(sql_select_Query, (x, y))
     # get all records
@@ -273,3 +275,6 @@ def binary_search(arr, low, high, x):
         # Element is not present in the array
         return -1
 
+
+if __name__ == '__main__':
+    app.run()
