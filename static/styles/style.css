@@ -9,13 +9,13 @@ h1{
 body {
 
   /*background: url("static/images/2019-9-8-1.jpg") no-repeat;*/
-  background-color: aquamarine;
+  background-color: deepskyblue;
   background-size: cover;
 }
 input[type=submit]{
-  background-color: cadetblue;
+  background-color: dodgerblue;
   border: none;
-  color: white;
+  color: lightskyblue;
   padding: 15px 32px;
   text-align: center;
   text-decoration: none;
@@ -29,10 +29,10 @@ input[type=submit]{
   font-family: "Roboto", sans-serif;
   position: relative;
   z-index: 1;
-  background: #FFFFFF;
+  background: lightskyblue;
   opacity: 99%;
-  max-width: 260px;
-  margin: 200px auto 100px;
+  /*max-width: 260px;*/
+  /*margin: 200px auto 100px;*/
   padding: 10px 45px 30px 45px;
   text-align: center;
   box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
@@ -59,7 +59,7 @@ input[type=submit]{
   text-transform: uppercase;
   outline: 0;
   border-radius: 10px;
-  background: #1AD8B5;
+  background: cornflowerblue;
   width: 100%;
   border: 0;
   padding: 15px;
@@ -70,7 +70,7 @@ input[type=submit]{
 .topnav  {
   list-style-type: none;
   overflow: hidden;
-  background-color: mediumaquamarine;
+  background-color: dodgerblue;
 }
 
 .text{

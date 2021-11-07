@@ -1,5 +1,4 @@
-from flask import Flask, render_template, request, redirect, session
-# from flask_mysqldb import MySQL
+from flask import Flask, render_template, request, redirect, session, flash
 from flask_session import Session
 import datetime
 from tempfile import mkdtemp
@@ -16,12 +15,10 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-app.config['MYSQL_USER'] = 'ba74ba05397a99'
-app.config['MYSQL_PASSWORD'] = 'b48cfd68'
-app.config['MYSQL_HOST'] = 'us-cdbr-east-04.cleardb.com'
-app.config['MYSQL_DB'] = 'heroku_5e2677edc19745f'
-
-# mysql = MySQL(app)
+cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
+                              user='ba74ba05397a99',
+                              passwd='b48cfd68',
+                              database='heroku_5e2677edc19745f')
 
 @app.route("/", methods=['GET', 'POST'])
 @login_required
@@ -73,21 +70,17 @@ def login():
         global username; username = request.form['email']
         password = request.form['password']
 
-        cnx = mysql.connector.connect(host='127.0.0.1',
-                                      user='root',
-                                      passwd='Porpan!12345',
-                                      database='weather_schema')
         cursor =cnx.cursor()
-        find_user = "select * from weather_schema.user1 where username = %s AND password = %s"
+        find_user = "select * from heroku_5e2677edc19745f.user1 where username = %s AND password = %s"
         cursor.execute(find_user, (username, password))
         results = cursor.fetchall()
         if not results:
-            return apology("invalid username and/or password", 403)
+            flash('Please check your login details and try again.')
+            return redirect("/login")
         data = []
         for row in results:
             data.append(row[0])
         session["user_id"] = data
-        cursor.close()
         return redirect("/")
 
     else:
@@ -98,18 +91,15 @@ def register():
     if request.method == 'POST':
         found = 0
         while found == 0:
-            username = request.form['email']
-            cnx = mysql.connector.connect(host='127.0.0.1',
-                                          user='root',
-                                          passwd='Porpan!12345',
-                                          database='weather_schema')
-
-            find_user = "select * from weather_schema.user1 where username  ='%s'" % (username)
+            username = request.form['username']
+            find_user = "select * from heroku_5e2677edc19745f.user1 where username  ='%s'" % (username)
             cursor = cnx.cursor()
             cursor.execute(find_user)
             records = cursor.fetchall()
             if records:
-                return apology("username already exists", 403)
+                flash('Email address already exists')
+
+                return redirect("/register")
             else:
                 found == 1
 
@@ -122,7 +112,7 @@ def register():
                     password1 = request.form['password1']
                     return render_template('register.html')
 
-                insertData= """INSERT INTO weather_schema.user1
+                insertData= """INSERT INTO heroku_5e2677edc19745f.user1
                             (username,firstname, lastname, password)
                             VALUES (%s, %s, %s, %s)"""
                 prim_key = cursor.execute(insertData, (username, firstname, lastname, password))
@@ -143,12 +133,8 @@ def logout():
 
 def graph(x, y):
     print("Connecting to mysql database")
-    cnx = mysql.connector.connect(host='127.0.0.1',
-                                  user='root',
-                                  passwd='Porpan!12345',
-                                  database='weather_schema')
     cursor = cnx.cursor()
-    sql_select_Query = "select datetime, score from weather_schema.weather_storm where datetime BETWEEN %s AND %s"
+    sql_select_Query = "select datetime, score from heroku_5e2677edc19745f.weather_storm where datetime BETWEEN %s AND %s"
     cursor.execute(sql_select_Query, (x, y))
     # get all records
 
@@ -167,12 +153,7 @@ def graph(x, y):
 
 
 def avg():
-    cnx = mysql.connector.connect(host='127.0.0.1',
-                                  user='root',
-                                  passwd='Porpan!12345',
-                                  database='weather_schema')
-
-    sql_select_Query = "select * from weather_schema.average"
+    sql_select_Query = "select * from heroku_5e2677edc19745f.average"
     cursor = cnx.cursor()
     cursor.execute(sql_select_Query)
     # get all records
@@ -185,27 +166,16 @@ def avg():
     return date, values
 
 def getData(x,y):
-    cnx = mysql.connector.connect(host='127.0.0.1',
-                                  user='root',
-                                  passwd='Porpan!12345',
-                                  database='weather_schema')
-
-    sql_select_Query = "select * from weather_schema.weather_storm where datetime BETWEEN %s AND %s"
+    sql_select_Query = "select * from heroku_5e2677edc19745f.weather_storm where datetime BETWEEN %s AND %s"
     cursor = cnx.cursor()
     cursor.execute(sql_select_Query, (x, y))
     # get all records
 
     records = cursor.fetchall()
-    cnx.close()
     return records
 
 def sugggestion():
-    cnx = mysql.connector.connect(host='127.0.0.1',
-                                  user='root',
-                                  passwd='Porpan!12345',
-                                  database='weather_schema')
-
-    sql_select_Query = "select * from weather_schema.average order by fscore desc limit 3"
+    sql_select_Query = "select * from heroku_5e2677edc19745f.average order by fscore desc limit 3"
     cursor = cnx.cursor()
     cursor.execute(sql_select_Query)
     records = cursor.fetchall()
