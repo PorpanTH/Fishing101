@@ -1,5 +1,6 @@
 
 from flask import Flask, render_template, request, redirect, session
+from flask_mysqldb import MySQL
 from flask_session import Session
 import datetime
 from tempfile import mkdtemp
@@ -15,6 +16,14 @@ app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+
+app.config['MYSQL_USER'] = 'ba74ba05397a99'
+app.config['MYSQL_PASSWORD'] = 'b48cfd68'
+app.config['MYSQL_HOST'] = 'us-cdbr-east-04.cleardb.com'
+app.config['MYSQL_DB'] = 'heroku_5e2677edc19745f'
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+
+mysql = MySQL(app)
 
 @app.route("/", methods=['GET', 'POST'])
 @login_required
@@ -66,13 +75,8 @@ def login():
         global username; username = request.form['email']
         password = request.form['password']
 
-        cnx = mysql.connector.connect(host='127.0.0.1',
-                                      user='root',
-                                      passwd='Porpan!12345',
-                                      database='weather_schema')
-
+        cursor = mysql.connection.cursor()
         find_user = "select * from weather_schema.user1 where username = %s AND password = %s"
-        cursor = cnx.cursor()
         cursor.execute(find_user, (username, password))
         results = cursor.fetchall()
         if not results:
@@ -93,7 +97,7 @@ def register():
     if request.method == 'POST':
         found = 0
         while found == 0:
-            username = request.form['username']
+            username = request.form['email']
             cnx = mysql.connector.connect(host='127.0.0.1',
                                           user='root',
                                           passwd='Porpan!12345',
@@ -106,8 +110,8 @@ def register():
             if records:
                 return apology("username already exists", 403)
             else:
-                found = 1
-                username = request.form['email']
+                found == 1
+
                 firstname = request.form['firstname']
                 lastname = request.form['lastname']
                 password = request.form['password']
@@ -138,13 +142,12 @@ def logout():
 
 def graph(x, y):
     print("Connecting to mysql database")
-    cnx = mysql.connector.connect(host='127.0.0.1',
-                                  user='root',
-                                  passwd='Porpan!12345',
-                                  database='weather_schema')
-
+    # cnx = mysql.connector.connect(host='127.0.0.1',
+    #                               user='root',
+    #                               passwd='Porpan!12345',
+    #                               database='weather_schema')
+    cursor = mysql.connection.cursor()
     sql_select_Query = "select datetime, score from weather_schema.weather_storm where datetime BETWEEN %s AND %s"
-    cursor = cnx.cursor()
     cursor.execute(sql_select_Query, (x, y))
     # get all records
 
