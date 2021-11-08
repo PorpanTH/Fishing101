@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, render_template, request, redirect, session, flash
 from flask_session import Session
 import datetime
@@ -252,6 +254,7 @@ def binary_search(arr, low, high, x):
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, port=port)
+
     # app.run()
