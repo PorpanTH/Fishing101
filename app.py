@@ -19,7 +19,12 @@ cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
                               user='ba74ba05397a99',
                               passwd='b48cfd68',
                               database='heroku_5e2677edc19745f')
-
+# app.config['MYSQL_HOST'] = 'localhost'
+# app.config['MYSQL_USER'] = 'root'
+# app.config['MYSQL_PASSWORD'] = ''
+# app.config['MYSQL_DB'] = 'flask'
+#
+# mysql = MySQL(app)
 @app.route("/", methods=['GET', 'POST'])
 @login_required
 def index():
@@ -69,7 +74,7 @@ def login():
 
         global username; username = request.form['email']
         password = request.form['password']
-
+        # cursor = mysql.connection.cursor()
         cursor =cnx.cursor()
         find_user = "select * from heroku_5e2677edc19745f.user1 where username = %s AND password = %s"
         cursor.execute(find_user, (username, password))
@@ -247,7 +252,5 @@ def binary_search(arr, low, high, x):
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000)
-    app.run(host='0.0.0.0', port=port)
 
-    # app.run()
+    app.run()
