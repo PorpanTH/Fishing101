@@ -28,7 +28,7 @@ Session(app)
 # mysql = MySQL(app)
 
 @app.route("/", methods=['GET', 'POST'])
-@login_required
+# @login_required
 def index():
     if request.method == 'POST':
         if request.form.get('action1') == '>':
