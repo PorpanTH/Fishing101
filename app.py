@@ -204,7 +204,7 @@ def sugggestion():
                                   user='ba74ba05397a99',
                                   passwd='b48cfd68',
                                   database='heroku_5e2677edc19745f')
-    sql_select_Query = "select * from heroku_5e2677edc19745f.average order by fscore desc limit 3"
+    sql_select_Query = "select * from heroku_5e2677edc19745f.average where MONTH(datetime) = MONTH(CURDATE()) AND order by fscore desc limit 3 "
     cursor = cnx.cursor()
     cursor.execute(sql_select_Query)
     records = cursor.fetchall()

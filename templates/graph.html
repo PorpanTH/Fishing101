@@ -138,29 +138,6 @@
                   }
             });
 
-
-                        {#var today = new Date();#}
-            {#var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();#}
-            {#var enddate = today.setDate(today.getDate()+10);#}
-            {#const button = document.getElementById("arrowl");#}
-            {#const button1 = document.getElementById("arrowr");#}
-            {##}
-            {##}
-            {#if(isLater({{today}}, date)){#}
-            {#    button.disabled = true;#}
-            {##}
-            {#if({{today}} == enddate){#}
-            {#    button1.disabled = true;#}
-            {##}
-            {#function isLater(dateString1, dateString2) {#}
-            {#    return dateString1 > dateString2#}
-            {#    }#}
-  {#          const starTotal = 5;#}
-  {#          const starPercentage = ({{fscore}}/85) * 100;#}
-  {#// 3#}
-  {#          const starPercentageRounded = `${(Math.round(starPercentage / 10) * 10)}%`;#}
-  {#// 4#}
-  {#          document.querySelector(`.${{ fscore }} .stars-inner`).style.width = starPercentageRounded;#}
             const ratings = {sony:{{fscore}}};
             const starsTotal = 5;
 
@@ -183,6 +160,8 @@
               }
             }
         </script>
+
+        <h2 class="text">Recommendation for this month</h2>
         <table class="table">
             <tr class="table__header">
                 {%  for header in headings %}
