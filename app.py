@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask, render_template, request, redirect, session, flash
-from flask_session.__init__ import Session
+from flask_session import Session
 import datetime
 from tempfile import mkdtemp
 import mysql.connector
@@ -28,7 +28,7 @@ Session(app)
 # mysql = MySQL(app)
 
 @app.route("/", methods=['GET', 'POST'])
-# @login_required
+@login_required
 def index():
     if request.method == 'POST':
         if request.form.get('action1') == '>':
