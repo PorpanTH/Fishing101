@@ -70,15 +70,14 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    session.clear()
     cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
                                   user='ba74ba05397a99',
                                   passwd='b48cfd68',
                                   database='heroku_5e2677edc19745f')
     if request.method == 'POST':
 
-        username = request.form['email']
-        session["email"] = username
+        session["email"] = request.form['email']
+        username = session["email"]
         password = request.form['password']
         # cursor = mysql.connection.cursor()
         cursor = cnx.cursor()
