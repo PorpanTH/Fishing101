@@ -78,8 +78,8 @@ def login():
                                   database='heroku_5e2677edc19745f')
     if request.method == 'POST':
 
-        session["email"] = request.form['email']
-        username = session["email"]
+        username = request.form['email']
+        session["email"] = username
         password = request.form['password']
         # cursor = mysql.connection.cursor()
         cursor =cnx.cursor()
