@@ -87,9 +87,6 @@ def login():
         if not results:
             flash('Please check your login details and try again.')
             return redirect("/login")
-        elif len(results) == 0:
-            flash('Username does not exists')
-            return redirect("/login")
         data = []
         for row in results:
             data.append(row[0])
