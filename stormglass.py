@@ -37,6 +37,11 @@ response1 = requests.get(
 json_data = response.json()
 json_data1 = response1.json()
 
+# print("Connecting to mysql database")
+# cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
+#                               user='ba74ba05397a99',
+#                               passwd='b48cfd68',
+#                               database='heroku_5e2677edc19745f')
 
 try:
     print("Connecting to mysql database")
@@ -54,7 +59,6 @@ try:
     time = json_extract(response.json(), 'time')
     my_values1 = json_extract(response1.json(), 'value')
     times = json_extract(response1.json(), 'time')
-
     swellHeight = my_values[0::3]
     swellPeriod = my_values[1::3]
     windSpeed = my_values[2::3]
@@ -96,8 +100,6 @@ try:
         for row in records:
             data.append(row[0])
         avg = sum(data) / len(data)
-        # print(avg)
-        # print(data)
 
         insert_weather_data = """INSERT INTO heroku_5e2677edc19745f.average
             (datetime, fscore)
@@ -106,11 +108,6 @@ try:
         cursor.execute(insert_weather_data, val)
         cnx.commit()
 
-    print("Connecting to mysql database")
-    cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
-                                  user='ba74ba05397a99',
-                                  passwd='b48cfd68',
-                                  database='heroku_5e2677edc19745f')
     cursor = cnx.cursor()
 
     delete_weather_data = ("delete from heroku_5e2677edc19745f.average  where datetime >= CURDATE()")
@@ -136,7 +133,6 @@ try:
 
         insert_weather_data = """INSERT INTO heroku_5e2677edc19745f.average
             (datetime, fscore)
-            
             VALUES (%s, %s)"""
         val = (Current_Date_Formatted, avg)
         cursor.execute(insert_weather_data, val)
@@ -153,5 +149,4 @@ finally:
         cursor.close()
         cnx.close()
         print("MySQL connection is closed")
-
 

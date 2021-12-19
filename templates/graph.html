@@ -72,24 +72,18 @@
         <h1>{{fscore}}</h1>
 
           <div class="container mt-5">
-
-
       <table class="stars-table">
-
             <tbody>
-
               <tr class="sony" id="center">
                   <td>
                       <form method="post" class="nav" id="nav" action="/">
                         <input type="submit" id="arrowl" value="<" name="action2" />
                       </form>
-
                   </td>
                 <td id="center">
                   <div class="stars-outer">
                     <div class="stars-inner"></div>
                   </div>
-
                 </td>
                   <td>
                       <form method="post" class="nav" id="nav" action="/">
@@ -97,7 +91,6 @@
                       </form>
                   </td>
               </tr>
-
             </tbody>
           </table>
         </div>
@@ -169,26 +162,26 @@
   {#// 4#}
   {#          document.querySelector(`.${{ fscore }} .stars-inner`).style.width = starPercentageRounded;#}
             const ratings = {sony:{{fscore}}};
-         const starsTotal = 5;
+            const starsTotal = 5;
 
-    // Run getRatings when DOM loads
-    document.addEventListener('DOMContentLoaded', getRatings);
-    const button = document.document.getElementById('arrowr')
-            button.disabled = true
-    // Get ratings
-    function getRatings() {
-      for (let rating in ratings) {
-        // Get percentage
-        const starPercentage = ((-0.00005318*ratings[rating]*ratings[rating]*ratings[rating] +0.01064467*ratings[rating]*ratings[rating] -0.6724028*ratings[rating]+13.7646165) ) * 100;
+            // Run getRatings when DOM loads
+            document.addEventListener('DOMContentLoaded', getRatings);
+            const button = document.document.getElementById('arrowr')
+                    button.disabled = true
+            // Get ratings
+            function getRatings() {
+              for (let rating in ratings) {
+                // Get percentage
+                const starPercentage = ((-0.00005318*ratings[rating]*ratings[rating]*ratings[rating] +0.01064467*ratings[rating]*ratings[rating] -0.6724028*ratings[rating]+13.7646165) ) * 100;
 
-        // Round to nearest 10
-        const starPercentageRounded = `${Math.round(starPercentage / 10) * 10}%`;
+                // Round to nearest 10
+                const starPercentageRounded = `${Math.round(starPercentage / 10) * 10}%`;
 
-        // Set width of stars-inner to percentage
-        document.querySelector(`.${rating} .stars-inner`).style.width = starPercentageRounded;
+                // Set width of stars-inner to percentage
+                document.querySelector(`.${rating} .stars-inner`).style.width = starPercentageRounded;
 
-      }
-    }
+              }
+            }
         </script>
         <table class="table">
             <tr class="table__header">

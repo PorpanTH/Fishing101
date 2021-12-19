@@ -8,6 +8,8 @@ import mysql.connector
 from helpers import apology, login_required
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 
+
+# from flask_mysqldb import MySQL
 # format the date to ddmmyyyy
 
 app = Flask(__name__)
@@ -17,27 +19,22 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
-                              user='ba74ba05397a99',
-                              passwd='b48cfd68',
-                              database='heroku_5e2677edc19745f')
-# app.config['MYSQL_HOST'] = 'localhost'
-# app.config['MYSQL_USER'] = 'root'
-# app.config['MYSQL_PASSWORD'] = ''
-# app.config['MYSQL_DB'] = 'flask'
+
+# app.config['MYSQL_HOST'] = 'us-cdbr-east-04.cleardb.com'
+# app.config['MYSQL_USER'] = 'ba74ba05397a99'
+# app.config['MYSQL_PASSWORD'] = 'b48cfd68'
+# app.config['MYSQL_DB'] = 'heroku_5e2677edc19745f'
 #
 # mysql = MySQL(app)
+
 @app.route("/", methods=['GET', 'POST'])
 @login_required
 def index():
-    # Current_Date = datetime.datetime.today()
     if request.method == 'POST':
         if request.form.get('action1') == '>':
             Current_Date, i = Date.add(1)
-
         elif request.form.get('action2') == '<':
             Current_Date, i = Date.minus(1)
-
         Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
         NextDay_Date = Current_Date + datetime.timedelta(days=1)
         NextDay_Date_Formatted = NextDay_Date.strftime('%Y-%m-%d')
@@ -52,7 +49,8 @@ def index():
         headings1 = ("Date", "Score")
         data1 = sugggestion()
 
-        return render_template("graph.html", labels=labels, values=values, today=Current_Date_Formatted, fscore=fscore, headings = headings, data=data, headings1 = headings1, data1=data1 )
+        return render_template("graph.html", labels=labels, values=values, today=Current_Date_Formatted, fscore=fscore,
+                               headings=headings, data=data, headings1=headings1, data1=data1 )
     else:
         Current_Date_Formatted = datetime.datetime.today().strftime('%Y-%m-%d')  # format the date to ddmmyyyy
         NextDay_Date = datetime.datetime.today() + datetime.timedelta(days=1)
@@ -67,11 +65,16 @@ def index():
         headings1 = ("Date", "Score")
         data1 = sugggestion()
 
-        return render_template("graph.html", labels=labels, values=values, today=Current_Date_Formatted, fscore=fscore, headings=headings, data=data, headings1 = headings1, data1=data1)
+        return render_template("graph.html", labels=labels, values=values, today=Current_Date_Formatted, fscore=fscore,
+                               headings=headings, data=data, headings1=headings1, data1=data1)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     session.clear()
+    cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
+                                  user='ba74ba05397a99',
+                                  passwd='b48cfd68',
+                                  database='heroku_5e2677edc19745f')
     if request.method == 'POST':
 
         global username; username = request.form['email']
@@ -95,6 +98,10 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
+                                  user='ba74ba05397a99',
+                                  passwd='b48cfd68',
+                                  database='heroku_5e2677edc19745f')
     if request.method == 'POST':
         found = 0
         while found == 0:
@@ -105,7 +112,6 @@ def register():
             records = cursor.fetchall()
             if records:
                 flash('Email address already exists')
-
                 return redirect("/register")
             else:
                 found == 1
@@ -140,17 +146,15 @@ def logout():
 
 def graph(x, y):
     print("Connecting to mysql database")
+    cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
+                                  user='ba74ba05397a99',
+                                  passwd='b48cfd68',
+                                  database='heroku_5e2677edc19745f')
     cursor = cnx.cursor()
     sql_select_Query = "select datetime, score from heroku_5e2677edc19745f.weather_storm where datetime BETWEEN %s AND %s"
     cursor.execute(sql_select_Query, (x, y))
     # get all records
-
     records = cursor.fetchall()
-    # for row in records:
-    #     print("Id = ", row[0], )
-    #     print("Name = ", row[1])
-    # labels = [row[0] for row in records]
-    # values = [row[1] for row in records]
     labels = []
     values = []
     for row in records:
@@ -160,6 +164,10 @@ def graph(x, y):
 
 
 def avg():
+    cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
+                                  user='ba74ba05397a99',
+                                  passwd='b48cfd68',
+                                  database='heroku_5e2677edc19745f')
     sql_select_Query = "select * from heroku_5e2677edc19745f.average"
     cursor = cnx.cursor()
     cursor.execute(sql_select_Query)
@@ -173,6 +181,10 @@ def avg():
     return date, values
 
 def getData(x,y):
+    cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
+                                  user='ba74ba05397a99',
+                                  passwd='b48cfd68',
+                                  database='heroku_5e2677edc19745f')
     sql_select_Query = "select * from heroku_5e2677edc19745f.weather_storm where datetime BETWEEN %s AND %s"
     cursor = cnx.cursor()
     cursor.execute(sql_select_Query, (x, y))
@@ -182,11 +194,27 @@ def getData(x,y):
     return records
 
 def sugggestion():
+    cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
+                                  user='ba74ba05397a99',
+                                  passwd='b48cfd68',
+                                  database='heroku_5e2677edc19745f')
     sql_select_Query = "select * from heroku_5e2677edc19745f.average order by fscore desc limit 3"
     cursor = cnx.cursor()
     cursor.execute(sql_select_Query)
     records = cursor.fetchall()
     return records
+
+def binary_search(arr, low, high, x):
+    if high >= low:
+        mid = (high + low) // 2
+        if arr[mid] == x:
+            return mid
+        elif arr[mid] > x:
+            return binary_search(arr, low, mid - 1, x)
+        else:
+            return binary_search(arr, mid + 1, high, x)
+    else:
+        return -1
 
 class Date:
     currentDate = datetime.datetime.today()
@@ -229,32 +257,8 @@ for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
 
 
-def binary_search(arr, low, high, x):
-    # Check base case
-    if high >= low:
-
-        mid = (high + low) // 2
-
-        # If element is present at the middle itself
-        if arr[mid] == x:
-            return mid
-
-        # If element is smaller than mid, then it can only
-        # be present in left subarray
-        elif arr[mid] > x:
-            return binary_search(arr, low, mid - 1, x)
-
-        # Else the element can only be present in right subarray
-        else:
-            return binary_search(arr, mid + 1, high, x)
-
-    else:
-        # Element is not present in the array
-        return -1
-
-
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    # port = int(os.environ.get('PORT', 5000))
+    # app.run(host='0.0.0.0', port=port)
 
-    # app.run()
+    app.run()
