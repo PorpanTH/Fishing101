@@ -5,9 +5,8 @@ from flask_session import Session
 import datetime
 from tempfile import mkdtemp
 import mysql.connector
-from helpers import apology
+from helpers import apology, login_required
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
-
 
 # from flask_mysqldb import MySQL
 # format the date to ddmmyyyy
@@ -28,9 +27,8 @@ Session(app)
 # mysql = MySQL(app)
 
 @app.route("/", methods=['GET', 'POST'])
+@login_required
 def index():
-    if not session.get("email"):
-        return redirect("/login")
     if request.method == 'POST':
         if request.form.get('action1') == '>':
             Current_Date, i = Date.add(1)
@@ -51,7 +49,7 @@ def index():
         data1 = sugggestion()
 
         return render_template("graph.html", labels=labels, values=values, today=Current_Date_Formatted, fscore=fscore,
-                               headings=headings, data=data, headings1=headings1, data1=data1 )
+                               headings=headings, data=data, headings1=headings1, data1=data1)
     else:
         Current_Date_Formatted = datetime.datetime.today().strftime('%Y-%m-%d')  # format the date to ddmmyyyy
         NextDay_Date = datetime.datetime.today() + datetime.timedelta(days=1)
@@ -69,6 +67,7 @@ def index():
         return render_template("graph.html", labels=labels, values=values, today=Current_Date_Formatted, fscore=fscore,
                                headings=headings, data=data, headings1=headings1, data1=data1)
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     session.clear()
@@ -82,7 +81,7 @@ def login():
         session["email"] = username
         password = request.form['password']
         # cursor = mysql.connection.cursor()
-        cursor =cnx.cursor()
+        cursor = cnx.cursor()
         find_user = "select * from heroku_5e2677edc19745f.user1 where username = %s AND password = %s"
         cursor.execute(find_user, (username, password))
         results = cursor.fetchall()
@@ -92,11 +91,12 @@ def login():
         data = []
         for row in results:
             data.append(row[0])
-        session["user_id"] = data
+
         return redirect("/")
 
     else:
         return render_template("login.html")
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -127,14 +127,15 @@ def register():
                     password1 = request.form['password1']
                     return render_template('register.html')
 
-                insertData= """INSERT INTO heroku_5e2677edc19745f.user1
+                insertData = """INSERT INTO heroku_5e2677edc19745f.user1
                             (username,firstname, lastname, password)
                             VALUES (%s, %s, %s, %s)"""
                 prim_key = cursor.execute(insertData, (username, firstname, lastname, password))
-                session["user_id"] = prim_key
+                session["email"] = username
                 cnx.commit()
                 return redirect("/")
     return render_template('register.html')
+
 
 @app.route("/logout")
 def logout():
@@ -145,6 +146,7 @@ def logout():
 
     # Redirect user to login form
     return redirect("/")
+
 
 def graph(x, y):
     print("Connecting to mysql database")
@@ -182,7 +184,8 @@ def avg():
         values.append(row[1])
     return date, values
 
-def getData(x,y):
+
+def getData(x, y):
     cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
                                   user='ba74ba05397a99',
                                   passwd='b48cfd68',
@@ -195,6 +198,7 @@ def getData(x,y):
     records = cursor.fetchall()
     return records
 
+
 def sugggestion():
     cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
                                   user='ba74ba05397a99',
@@ -205,6 +209,7 @@ def sugggestion():
     cursor.execute(sql_select_Query)
     records = cursor.fetchall()
     return records
+
 
 def binary_search(arr, low, high, x):
     if high >= low:
@@ -217,6 +222,7 @@ def binary_search(arr, low, high, x):
             return binary_search(arr, mid + 1, high, x)
     else:
         return -1
+
 
 class Date:
     currentDate = datetime.datetime.today()
@@ -251,13 +257,15 @@ def errorhandler(e):
         e = InternalServerError()
     return apology(e.name, e.code)
 
+
 def is_provided(field):
     if not request.form.get(field):
         return apology(f"must provide {field}", 403)
 
+
+
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
-
 
 if __name__ == '__main__':
     # port = int(os.environ.get('PORT', 5000))
