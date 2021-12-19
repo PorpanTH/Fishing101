@@ -130,7 +130,7 @@ def register():
                 insertData = """INSERT INTO heroku_5e2677edc19745f.user1
                             (username,firstname, lastname, password)
                             VALUES (%s, %s, %s, %s)"""
-                prim_key = cursor.execute(insertData, (username, firstname, lastname, password))
+                cursor.execute(insertData, (username, firstname, lastname, password))
                 session["email"] = username
                 cnx.commit()
                 return redirect("/")
