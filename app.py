@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask, render_template, request, redirect, session, flash
-from flask_session import Session
+from flask_session.__init__ import Session
 import datetime
 from tempfile import mkdtemp
 import mysql.connector
