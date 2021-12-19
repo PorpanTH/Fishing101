@@ -84,10 +84,12 @@ def login():
         find_user = "select * from heroku_5e2677edc19745f.user1 where username = %s AND password = %s"
         cursor.execute(find_user, (username, password))
         results = cursor.fetchall()
-        if not results or len(results) == 0:
+        if not results:
             flash('Please check your login details and try again.')
             return redirect("/login")
-
+        elif len(results) != 0:
+            flash('Username does not exists')
+            return redirect("/login")
         data = []
         for row in results:
             data.append(row[0])
