@@ -84,9 +84,10 @@ def login():
         find_user = "select * from heroku_5e2677edc19745f.user1 where username = %s AND password = %s"
         cursor.execute(find_user, (username, password))
         results = cursor.fetchall()
-        if not results:
+        if not results or len(results) == 0:
             flash('Please check your login details and try again.')
             return redirect("/login")
+
         data = []
         for row in results:
             data.append(row[0])
@@ -122,6 +123,7 @@ def register():
                 password = request.form['password']
                 password1 = request.form['password1']
                 while password != password1:
+                    flash('Password does not match!')
                     password = request.form['password']
                     password1 = request.form['password1']
                     return render_template('register.html')
