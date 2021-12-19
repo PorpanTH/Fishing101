@@ -5,7 +5,7 @@ from flask_session import Session
 import datetime
 from tempfile import mkdtemp
 import mysql.connector
-from helpers import apology, login_required
+from helpers import apology
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 
 
@@ -28,8 +28,9 @@ Session(app)
 # mysql = MySQL(app)
 
 @app.route("/", methods=['GET', 'POST'])
-@login_required
 def index():
+    if not session.get("email"):
+        return redirect("/login")
     if request.method == 'POST':
         if request.form.get('action1') == '>':
             Current_Date, i = Date.add(1)
@@ -77,7 +78,8 @@ def login():
                                   database='heroku_5e2677edc19745f')
     if request.method == 'POST':
 
-        global username; username = request.form['email']
+        session["email"] = request.form['email']
+        username = request.form['email']
         password = request.form['password']
         # cursor = mysql.connection.cursor()
         cursor =cnx.cursor()
