@@ -130,7 +130,7 @@ def login():
 
 @app.route("/data", methods=['GET', 'POST'])
 def data():
-    Current_Date, i = Date.add(0)
+    Current_Date, i = Date.get()
     Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
     NextDay_Date = Current_Date + datetime.timedelta(days=1)
     NextDay_Date_Formatted = NextDay_Date.strftime('%Y-%m-%d')
@@ -313,6 +313,10 @@ class Date:
     def set(cls, x):
         cls.i = x
         return cls.i
+
+    @classmethod
+    def get(cls):
+        return cls.currentDate, cls.i
 
 
 # @app.errorhandler(500)
