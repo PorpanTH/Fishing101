@@ -25,14 +25,14 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-import functools
-def calltracker(func):
-    @functools.wraps(func)
-    def wrapper(*args):
-        wrapper.has_been_called = True
-        return func(*args)
-    wrapper.has_been_called = False
-    return wrapper
+# import functools
+# def calltracker(func):
+#     @functools.wraps(func)
+#     def wrapper(*args):
+#         wrapper.has_been_called = True
+#         return func(*args)
+#     wrapper.has_been_called = False
+#     return wrapper
 
 @app.route("/", methods=['GET', 'POST'])
 @login_required
@@ -96,22 +96,6 @@ def index():
         # return render_template("graph.html", labels=labels, values=values, today=Current_Date_Formatted, fscore=fscore,
         #                        headings=headings, data=data, headings1=headings1, data1=data1)
 
-@app.route("/data", methods=['GET', 'POST'])
-def data():
-    Current_Date, i = Date.add(0)
-    Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
-    NextDay_Date = Current_Date + datetime.timedelta(days=1)
-    NextDay_Date_Formatted = NextDay_Date.strftime('%Y-%m-%d')
-    headings = ("Time", "swell height", "swell period", "wind speed", "moon phase")
-    data = getData(Current_Date_Formatted, NextDay_Date_Formatted)
-
-    context = {
-        'today': Current_Date_Formatted,
-        'headings': headings,
-        'data': data
-    }
-    return render_template("weather.html", **context)
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     conn = mysql.connect()
@@ -143,6 +127,22 @@ def login():
     else:
         return render_template("login.html")
 
+
+@app.route("/data", methods=['GET', 'POST'])
+def data():
+    Current_Date, i = Date.add(0)
+    Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
+    NextDay_Date = Current_Date + datetime.timedelta(days=1)
+    NextDay_Date_Formatted = NextDay_Date.strftime('%Y-%m-%d')
+    headings = ("Time", "swell height", "swell period", "wind speed", "moon phase")
+    data = getData(Current_Date_Formatted, NextDay_Date_Formatted)
+
+    context = {
+        'today': Current_Date_Formatted,
+        'headings': headings,
+        'data': data
+    }
+    return render_template("weather.html", **context)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -215,11 +215,9 @@ def graph(x, y):
     for row in records:
         labels.append(row[0])
         values.append(row[1])
-    conn.close()
-    cursor.close()
     return labels, values
 
-@calltracker
+# @calltracker
 def avg():
     conn = mysql.connect()
     cursor = conn.cursor()
@@ -239,8 +237,7 @@ def avg():
     for row in records:
         date.append(row[0].strftime('%Y-%m-%d'))
         values.append(row[1])
-    conn.close()
-    cursor.close()
+
     return date, values
 
 
@@ -262,8 +259,6 @@ def getData(x, y):
     # get all records
 
     records = cursor.fetchall()
-    conn.close()
-    cursor.close()
     return records
 
 
@@ -282,8 +277,6 @@ def sugggestion():
 
     cursor.execute(sql_select_Query)
     records = cursor.fetchall()
-    conn.close()
-    cursor.close()
     return records
 
 
