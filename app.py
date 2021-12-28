@@ -67,8 +67,9 @@ def index():
         }
         return render_template("graph.html", **context)
     else:
-        Current_Date_Formatted = datetime.datetime.today().strftime('%Y-%m-%d')  # format the date to ddmmyyyy
-        NextDay_Date = datetime.datetime.today() + datetime.timedelta(days=1)
+        Current_Date, i = Date.get()
+        Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
+        NextDay_Date = Current_Date + datetime.timedelta(days=1)
         NextDay_Date_Formatted = NextDay_Date.strftime('%Y-%m-%d')
 
         labels, values = graph(Current_Date_Formatted, NextDay_Date_Formatted)
