@@ -118,8 +118,8 @@ try:
     value =[]
     while result != len(date):
         indices = []
-
-        while result < result + 23:
+        i = result + 23
+        while result < i:
             indices.append(result)
             result += 1
             if result == len(date):
