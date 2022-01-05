@@ -114,14 +114,17 @@ def login():
         # cursor = mysql.connection.cursor()
 
         find_user = "select * from heroku_5e2677edc19745f.user1 where username = %s AND password = %s"
-        cursor.execute(find_user, (username, password))
+        data =[]
+        val = username, password
+        data.append(val)
+        cursor.executemany(find_user, data)
         results = cursor.fetchall()
         if not results:
             flash('Please check your login details and try again.')
             return redirect("/login")
-        data = []
-        for row in results:
-            data.append(row[0])
+        # data = []
+        # for row in results:
+        #     data.append(row[0])
 
         return redirect("/")
 
@@ -130,6 +133,7 @@ def login():
 
 
 @app.route("/data", methods=['GET', 'POST'])
+@login_required
 def data():
     Current_Date, i = Date.get()
     Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
@@ -164,7 +168,7 @@ def register():
                 flash('Email address already exists')
                 return redirect("/register")
             else:
-                found == 1
+                found = 1
 
                 firstname = request.form['firstname']
                 lastname = request.form['lastname']
@@ -172,14 +176,17 @@ def register():
                 password1 = request.form['password1']
                 while password != password1:
                     flash('Password does not match!')
-                    password = request.form['password']
-                    password1 = request.form['password1']
+                    # password = request.form['password']
+                    # password1 = request.form['password1']
                     return render_template('register.html')
 
                 insertData = """INSERT INTO heroku_5e2677edc19745f.user1
                             (username,firstname, lastname, password)
                             VALUES (%s, %s, %s, %s)"""
-                cursor.execute(insertData, (username, firstname, lastname, password))
+                data = []
+                val = username, firstname, lastname, password
+                data.append(val)
+                cursor.execute(insertData, data)
                 session["email"] = username
                 conn.commit()
                 return redirect("/")
@@ -208,7 +215,11 @@ def graph(x, y):
     #                               database='heroku_5e2677edc19745f')
     # cursor = cnx.cursor()
     sql_select_Query = "select datetime, score from heroku_5e2677edc19745f.weather_storm where datetime >= %s AND datetime < %s order by datetime desc"
-    cursor.execute(sql_select_Query, (x, y))
+    data = []
+    val = x,y
+    data.append(val)
+
+    cursor.executemany(sql_select_Query,data)
     # get all records
     records = cursor.fetchall()
     labels = []

@@ -1,3 +1,4 @@
+import time
 import requests
 import mysql.connector
 from extract import json_extract
@@ -11,6 +12,17 @@ def calScore(a, b, c, d):
     score = (score1 + score2 + score3 + score4)/4
     return score
 
+def binary_search(arr, low, high, x):
+    if high >= low:
+        mid = (high + low) // 2
+        if arr[mid] == x:
+            return mid
+        elif arr[mid] > x:
+            return binary_search(arr, low, mid - 1, x)
+        else:
+            return binary_search(arr, mid + 1, high, x)
+    else:
+        return -1
 
 response = requests.get(
     'https://api.stormglass.io/v2/weather/point',
@@ -45,6 +57,7 @@ json_data1 = response1.json()
 
 try:
     print("Connecting to mysql database")
+    start_time = time.time()
     cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
                                   user='ba74ba05397a99',
                                   passwd='b48cfd68',
@@ -66,6 +79,7 @@ try:
     time1 = times[2::3]
     score = 0
     w: int = 0
+    data = []
     for i in range(len(swellHeight)):
         insert_weather_data = """INSERT INTO heroku_5e2677edc19745f.weather_storm
             (datetime, swellHeight, swellPeriod, windSpeed, moonPhase, score)
@@ -78,68 +92,52 @@ try:
 
         score = calScore(swellHeight[i], swellPeriod[i], windSpeed[i], moonPhase[w])
         val = (time[i], swellHeight[i], swellPeriod[i], windSpeed[i], moonPhase[w], score)
-        cursor.execute(insert_weather_data, val)
-        cnx.commit()
+        data.append(val)
+    cursor.executemany(insert_weather_data, data)
+    cnx.commit()
     print("record inserted")
 
-    delete_weather_data = ("delete from heroku_5e2677edc19745f.average  where datetime >= CURDATE()")
+    delete_weather_data = ("delete from heroku_5e2677edc19745f.average where datetime >= CURDATE()")
     cursor.execute(delete_weather_data)
     cnx.commit()
 
     current_day = datetime.datetime.today()
+    sql_select_Query = "select datetime, score from heroku_5e2677edc19745f.weather_storm where datetime >= CURDATE()"
+    cursor.execute(sql_select_Query)
+    records = cursor.fetchall()
+    date = []
+    values = []
+    for row in records:
+        date.append(row[0].strftime('%Y-%m-%d'))
+        values.append(row[1])
 
-    for i in range(10):
-        sql_select_Query = "select score from heroku_5e2677edc19745f.weather_storm where datetime BETWEEN %s AND %s"
-        current = current_day + datetime.timedelta(days=i)
-        Current_Date_Formatted = current.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
-        NextDay_Date = current_day + datetime.timedelta(days=i + 1)
-        NextDay_Date_Formatted = NextDay_Date.strftime('%Y-%m-%d')
-        cursor.execute(sql_select_Query, (Current_Date_Formatted, NextDay_Date_Formatted))
-        records = cursor.fetchall()
-        data = []
-        for row in records:
-            data.append(row[0])
+    current = current_day
+    Current_Date_Formatted = current.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
+    result = 0
+    # result = binary_search(date, 0, len(date), Current_Date_Formatted)
+    value =[]
+    while result != len(date):
+        indices = []
+
+        while result < result + 23:
+            indices.append(result)
+            result += 1
+            if result == len(date):
+                break
+
+        data = [values[index] for index in indices]
         avg = sum(data) / len(data)
+        val = (date[result-23], avg)
+        value.append(val)
 
-        insert_weather_data = """INSERT INTO heroku_5e2677edc19745f.average
-            (datetime, fscore)
-            VALUES (%s, %s)"""
-        val = (Current_Date_Formatted, avg)
-        cursor.execute(insert_weather_data, val)
-        cnx.commit()
-
-    cursor = cnx.cursor()
-
-    delete_weather_data = ("delete from heroku_5e2677edc19745f.average  where datetime >= CURDATE()")
-    cursor.execute(delete_weather_data)
+    insert_weather_data = """INSERT INTO heroku_5e2677edc19745f.average
+        (datetime, fscore)
+        VALUES (%s, %s)"""
+    # val = [Current_Date_Formatted, avg]
+    cursor.executemany(insert_weather_data, value)
     cnx.commit()
 
-    current_day = datetime.datetime.today()
-
-    for i in range(10):
-        sql_select_Query = "select score from heroku_5e2677edc19745f.weather_storm where datetime BETWEEN %s AND %s"
-        current = current_day + datetime.timedelta(days=i)
-        Current_Date_Formatted = current.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
-        NextDay_Date = current_day + datetime.timedelta(days=i + 1)
-        NextDay_Date_Formatted = NextDay_Date.strftime('%Y-%m-%d')
-        cursor.execute(sql_select_Query, (Current_Date_Formatted, NextDay_Date_Formatted))
-        records = cursor.fetchall()
-        data = []
-        for row in records:
-            data.append(row[0])
-        avg = sum(data) / len(data)
-        # print(avg)
-        # print(data)
-
-        insert_weather_data = """INSERT INTO heroku_5e2677edc19745f.average
-            (datetime, fscore)
-            VALUES (%s, %s)"""
-        val = (Current_Date_Formatted, avg)
-        cursor.execute(insert_weather_data, val)
-        cnx.commit()
-
-
-
+    # print("--- %s seconds ---" % (time.time() - start_time))
 
 except mysql.connector.Error as error:
     print("Failed to insert record into MySQL table {}".format(error))
@@ -149,4 +147,5 @@ finally:
         cursor.close()
         cnx.close()
         print("MySQL connection is closed")
+
 
