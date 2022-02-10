@@ -1,4 +1,3 @@
-import os
 
 from flask import Flask, render_template, request, redirect, session, flash
 from flask_session import Session
@@ -9,8 +8,14 @@ from helpers import apology, login_required
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 
 from flaskext.mysql import MySQL
+from cachetools import cached, TTLCache
+# from flask_caching import Cache
 
 app = Flask(__name__)
+cache = TTLCache(maxsize=100, ttl=60)
+# cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+
+
 mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = 'ba74ba05397a99'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'b48cfd68'
@@ -36,6 +41,8 @@ Session(app)
 
 @app.route("/", methods=['GET', 'POST'])
 @login_required
+# @cache.cached()
+# #@cache.cached(timeout=50)
 def index():
     if request.method == 'POST':
         if request.form.get('action1') == '>':
@@ -203,7 +210,7 @@ def logout():
     # Redirect user to login form
     return redirect("/")
 
-
+@cached(cache)
 def graph(x, y):
     print("Connecting to mysql database")
     conn = mysql.connect()
@@ -230,6 +237,7 @@ def graph(x, y):
     return labels, values
 
 # @calltracker
+@cached(cache)
 def avg():
     conn = mysql.connect()
     cursor = conn.cursor()
@@ -252,7 +260,7 @@ def avg():
 
     return date, values
 
-
+@cached(cache)
 def getData(x, y):
     # cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
     #                               user='ba74ba05397a99',
