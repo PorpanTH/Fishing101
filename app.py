@@ -6,15 +6,12 @@ from tempfile import mkdtemp
 import mysql.connector
 from helpers import apology, login_required
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
-
 from flaskext.mysql import MySQL
 from cachetools import cached, TTLCache
 # from flask_caching import Cache
 
 app = Flask(__name__)
-cache = TTLCache(maxsize=100, ttl=60)
-# cache = Cache(app, config={'CACHE_TYPE': 'simple'})
-
+cache=TTLCache(maxsize=1024, ttl=600)
 
 mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = 'ba74ba05397a99'
@@ -23,51 +20,45 @@ app.config['MYSQL_DATABASE_DB'] = 'heroku_5e2677edc19745f'
 app.config['MYSQL_DATABASE_HOST'] = 'us-cdbr-east-04.cleardb.com'
 mysql.init_app(app)
 
-# app = Flask(__name__)
-
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# import functools
-# def calltracker(func):
-#     @functools.wraps(func)
-#     def wrapper(*args):
-#         wrapper.has_been_called = True
-#         return func(*args)
-#     wrapper.has_been_called = False
-#     return wrapper
-
 @app.route("/", methods=['GET', 'POST'])
 @login_required
-# @cache.cached()
-# #@cache.cached(timeout=50)
 def index():
     if request.method == 'POST':
         if request.form.get('action1') == '>':
             Current_Date, i = Date.add(1)
         elif request.form.get('action2') == '<':
             Current_Date, i = Date.minus(1)
-        Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
-        NextDay_Date = Current_Date + datetime.timedelta(days=1)
-        NextDay_Date_Formatted = NextDay_Date.strftime('%Y-%m-%d')
+        Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d 00:00:00')  # format the date to ddmmyyyy
+        NextDay_Date = Current_Date + datetime.timedelta(days=0)
+        Date_Formatted = NextDay_Date.strftime('%b-%d')
+        labels, values = graph()
+        index = binary_search(labels, 0, len(labels), Current_Date_Formatted)
+        i = 0
 
-        labels, values = graph(Current_Date_Formatted, NextDay_Date_Formatted)
+        value = []
+        label = []
+        while i < 24:
+            value.append(values[index + i])
+            label.append(labels[index + i])
+            i += 1
 
-        # if not avg.has_been_called:
         date, fscores = avg()
 
         result = binary_search(date, 0, len(date), Current_Date_Formatted)
-        fscore = fscores[result]
+        fscore = '{:.0f}'.format(fscores[result])
 
         headings1 = ("Date", "Score")
         data1 = sugggestion()
 
         context = {
-            'labels' : labels,
-            'values' : values,
-            'today' : Current_Date_Formatted,
+            'labels' : label,
+            'values' : value,
+            'today' : Date_Formatted,
             'fscore' : fscore,
             'headings1' : headings1,
             'data1' : data1
@@ -75,50 +66,50 @@ def index():
         return render_template("graph.html", **context)
     else:
         Current_Date, i = Date.get()
-        Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
+        Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d 00:00:00')  # format the date to ddmmyyyy
         NextDay_Date = Current_Date + datetime.timedelta(days=1)
-        NextDay_Date_Formatted = NextDay_Date.strftime('%Y-%m-%d')
+        Date_Formatted = NextDay_Date.strftime('%b-%d')
 
-        labels, values = graph(Current_Date_Formatted, NextDay_Date_Formatted)
+        labels, values = graph()
+        index = binary_search(labels, 0, len(labels), Current_Date_Formatted)
+        i = 0
 
-        # if not avg.has_been_called:
+        value = []
+        label = []
+        while i < 24:
+
+            value.append(values[index + i])
+            label.append(labels[index + i])
+            i += 1
+
         date, fscores = avg()
 
         result = binary_search(date, 0, len(date), Current_Date_Formatted)
-        fscore = fscores[result]
+        fscore = '{:.0f}'.format(fscores[result])
 
         headings1 = ("Date", "Score")
         data1 = sugggestion()
 
         context = {
-            'labels': labels,
-            'values': values,
-            'today': Current_Date_Formatted,
+            'labels': label,
+            'values': value,
+            'today': Date_Formatted,
             'fscore': fscore,
             'headings1': headings1,
             'data1': data1
         }
-        # return render_template("graph.html", labels=labels, values=values, today=Current_Date_Formatted, fscore=fscore,
-        #                        headings=headings, data=data, headings1=headings1, data1=data1)
         return render_template("graph.html", **context)
-        # return render_template("graph.html", labels=labels, values=values, today=Current_Date_Formatted, fscore=fscore,
-        #                        headings=headings, data=data, headings1=headings1, data1=data1)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     conn = mysql.connect()
     cursor = conn.cursor()
 
-    # cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
-    #                               user='ba74ba05397a99',
-    #                               passwd='b48cfd68',
-    #                               database='heroku_5e2677edc19745f')
     if request.method == 'POST':
 
         session["email"] = request.form['email']
         username = session["email"]
         password = request.form['password']
-        # cursor = mysql.connection.cursor()
 
         find_user = "select * from heroku_5e2677edc19745f.user1 where username = %s AND password = %s"
         data =[]
@@ -129,10 +120,6 @@ def login():
         if not results:
             flash('Please check your login details and try again.')
             return redirect("/login")
-        # data = []
-        # for row in results:
-        #     data.append(row[0])
-
         return redirect("/")
 
     else:
@@ -144,13 +131,14 @@ def login():
 def data():
     Current_Date, i = Date.get()
     Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
+    Present_Date = Current_Date.strftime('%Y %b %d')
     NextDay_Date = Current_Date + datetime.timedelta(days=1)
     NextDay_Date_Formatted = NextDay_Date.strftime('%Y-%m-%d')
     headings = ("Time", "swell height", "swell period", "wind speed", "moon phase")
     data = getData(Current_Date_Formatted, NextDay_Date_Formatted)
 
     context = {
-        'today': Current_Date_Formatted,
+        'today': Present_Date,
         'headings': headings,
         'data': data
     }
@@ -160,10 +148,7 @@ def data():
 def register():
     conn = mysql.connect()
     cursor = conn.cursor()
-    # cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
-    #                               user='ba74ba05397a99',
-    #                               passwd='b48cfd68',
-    #                               database='heroku_5e2677edc19745f')
+
     if request.method == 'POST':
         found = 0
         while found == 0:
@@ -211,42 +196,31 @@ def logout():
     return redirect("/")
 
 @cached(cache)
-def graph(x, y):
+def graph():
     print("Connecting to mysql database")
     conn = mysql.connect()
     cursor = conn.cursor()
-    #
-    # cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
-    #                               user='ba74ba05397a99',
-    #                               passwd='b48cfd68',
-    #                               database='heroku_5e2677edc19745f')
-    # cursor = cnx.cursor()
-    sql_select_Query = "select datetime, score from heroku_5e2677edc19745f.weather_storm where datetime >= %s AND datetime < %s order by datetime desc"
-    data = []
-    val = x,y
-    data.append(val)
 
-    cursor.executemany(sql_select_Query,data)
+    sql = "select * from ( select datetime, score from heroku_5e2677edc19745f.weather_storm order by datetime desc limit 1000 ) t order by datetime asc"
+
+    cursor.execute(sql)
+
     # get all records
     records = cursor.fetchall()
-    labels = []
     values = []
-    for row in records:
-        labels.append(row[0])
-        values.append(row[1])
-    return labels, values
+    date = []
 
-# @calltracker
+    for row in records:
+        date.append(row[0].strftime('%Y-%m-%d %H:%M:%S'))
+        values.append(row[1])
+
+    return date, values
+
 @cached(cache)
 def avg():
     conn = mysql.connect()
     cursor = conn.cursor()
 
-    # cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
-    #                               user='ba74ba05397a99',
-    #                               passwd='b48cfd68',
-    #                               database='heroku_5e2677edc19745f')
-    # cursor = cnx.cursor()
     sql_select_Query = "select datetime, fscore from heroku_5e2677edc19745f.average"
 
     cursor.execute(sql_select_Query)
@@ -262,11 +236,6 @@ def avg():
 
 @cached(cache)
 def getData(x, y):
-    # cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
-    #                               user='ba74ba05397a99',
-    #                               passwd='b48cfd68',
-    #                               database='heroku_5e2677edc19745f')
-    # cursor = cnx.cursor()
     conn = mysql.connect()
     cursor = conn.cursor()
 
@@ -282,14 +251,9 @@ def getData(x, y):
     return records
 
 
+@cached(cache)
 def sugggestion():
-    # cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
-    #                               user='ba74ba05397a99',
-    #                               passwd='b48cfd68',
-    #                               database='heroku_5e2677edc19745f')
-    # cursor = cnx.cursor()
-    # sql_select_Query = "select * from heroku_5e2677edc19745f.average where MONTH(datetime) = MONTH(CURDATE()), order by fscore desc limit 3 "
-    # sql_select_Query = "select * from heroku_5e2677edc19745f.average order by fscore desc limit 3 "
+
     conn = mysql.connect()
     cursor = conn.cursor()
 

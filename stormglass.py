@@ -49,11 +49,6 @@ response1 = requests.get(
 json_data = response.json()
 json_data1 = response1.json()
 
-# print("Connecting to mysql database")
-# cnx = mysql.connector.connect(host='us-cdbr-east-04.cleardb.com',
-#                               user='ba74ba05397a99',
-#                               passwd='b48cfd68',
-#                               database='heroku_5e2677edc19745f')
 
 try:
     print("Connecting to mysql database")
@@ -97,7 +92,7 @@ try:
     cnx.commit()
     print("record inserted")
 
-    delete_weather_data = ("delete from heroku_5e2677edc19745f.average where datetime >= CURDATE()")
+    delete_weather_data = ("delete from heroku_5e2677edc19745f.average where datetime >=SUBDATE(CURDATE(),1)")
     cursor.execute(delete_weather_data)
     cnx.commit()
 
@@ -113,12 +108,12 @@ try:
 
     current = current_day
     Current_Date_Formatted = current.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
-    result = 0
+    result = 1
     # result = binary_search(date, 0, len(date), Current_Date_Formatted)
     value =[]
     while result != len(date):
         indices = []
-        i = result + 23
+        i = result + 24
         while result < i:
             indices.append(result)
             result += 1
@@ -127,9 +122,9 @@ try:
 
         data = [values[index] for index in indices]
         avg = sum(data) / len(data)
-        val = (date[result-23], avg)
+        val = (date[result - 23], avg)
         value.append(val)
-
+    # print(value)
     insert_weather_data = """INSERT INTO heroku_5e2677edc19745f.average
         (datetime, fscore)
         VALUES (%s, %s)"""
