@@ -10,6 +10,8 @@ from cachetools import cached, TTLCache
 from flask_caching import Cache
 
 app = Flask(__name__)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 300
+
 cache = TTLCache(maxsize=1024, ttl=600)
 avge = TTLCache(maxsize=1024, ttl=600)
 suggest = TTLCache(maxsize=100, ttl=600)
@@ -29,7 +31,9 @@ Session(app)
 
 @app.after_request
 def add_header(response):
-    response.cache_control.max_age = 300
+    # response.cache_control.no_store = True
+    if 'Cache-Control' not in response.headers:
+        response.headers['Cache-Control'] = 'no-store'
     return response
 
 
