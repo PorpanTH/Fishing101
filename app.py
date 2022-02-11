@@ -11,13 +11,9 @@ from flaskext.mysql import MySQL
 from flask_caching import Cache
 
 app = Flask(__name__)
-# cache=TTLCache(maxsize=1024, ttl=600)
-# avge=TTLCache(maxsize=1024, ttl=600)
-# suggest=TTLCache(maxsize=100, ttl=600)
-cache = Cache()
-app.config['CACHE_TYPE'] = 'simple'
-
-cache.init_app(app)
+cache=TTLCache(maxsize=1024, ttl=600)
+avge=TTLCache(maxsize=1024, ttl=600)
+suggest=TTLCache(maxsize=100, ttl=600)
 
 mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = 'ba74ba05397a99'
@@ -197,8 +193,7 @@ def logout():
     # Redirect user to login form
     return redirect("/")
 
-# @cached(cache)
-@cache.cached(timeout=600, key_prefix='graph')
+@cached(cache)
 def graph():
     print("Connecting to mysql database")
     conn = mysql.connect()
@@ -219,8 +214,7 @@ def graph():
 
     return date, values
 
-# @cached(avge)
-@cache.cached(timeout=600, key_prefix='average')
+@cached(avge)
 def avg():
     conn = mysql.connect()
     cursor = conn.cursor()
@@ -237,11 +231,10 @@ def avg():
         values.append(row[1])
     return date, values
 
-# @cached(cache)
-@cache.cached(timeout=600, key_prefix='getdata')
+@cached(cache)
 def getData(x, y):
     conn = mysql.connect()
-    cursor = conn.crsor()
+    cursor = conn.cursor()
 
     sql_select_Query = "select * from heroku_5e2677edc19745f.weather_storm where datetime BETWEEN %(date1)s AND %(date2)s"
     data = {
@@ -255,8 +248,7 @@ def getData(x, y):
     return records
 
 
-# @cached(suggest)
-@cache.cached(timeout=600, key_prefix='suggest')
+@cached(suggest)
 def sugggestion():
 
     conn = mysql.connect()
