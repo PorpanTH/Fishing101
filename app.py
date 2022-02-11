@@ -7,7 +7,7 @@ import mysql.connector
 from helpers import apology, login_required
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from flaskext.mysql import MySQL
-# from cachetools import cached, TTLCache
+from cachetools import cached, TTLCache
 from flask_caching import Cache
 
 app = Flask(__name__)
