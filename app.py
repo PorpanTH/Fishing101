@@ -28,7 +28,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 @app.route("/", methods=['GET', 'POST'])
-@login_required
+# @login_required
 def index():
     if request.method == 'POST':
         if request.form.get('action1') == '>':
