@@ -92,12 +92,12 @@ try:
     cnx.commit()
     print("record inserted")
 
-    delete_weather_data = ("delete from heroku_5e2677edc19745f.average where datetime >=SUBDATE(CURDATE(),1)")
+    delete_weather_data = ("delete from heroku_5e2677edc19745f.average where datetime >=SUBDATE(CURDATE(),3)")
     cursor.execute(delete_weather_data)
     cnx.commit()
 
     current_day = datetime.datetime.today()
-    sql_select_Query = "select datetime, score from heroku_5e2677edc19745f.weather_storm where datetime >= CURDATE()"
+    sql_select_Query = "select datetime, score from heroku_5e2677edc19745f.weather_storm where datetime >= SUBDATE(CURDATE(),3)"
     cursor.execute(sql_select_Query)
     records = cursor.fetchall()
     date = []

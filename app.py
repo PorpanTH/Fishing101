@@ -12,6 +12,8 @@ from cachetools import cached, TTLCache
 
 app = Flask(__name__)
 cache=TTLCache(maxsize=1024, ttl=600)
+avge=TTLCache(maxsize=1024, ttl=600)
+suggest=TTLCache(maxsize=100, ttl=600)
 
 mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = 'ba74ba05397a99'
@@ -48,10 +50,8 @@ def index():
             i += 1
 
         date, fscores = avg()
-
         result = binary_search(date, 0, len(date), Current_Date_Formatted)
         fscore = '{:.0f}'.format(fscores[result])
-
         headings1 = ("Date", "Score")
         data1 = sugggestion()
 
@@ -67,7 +67,7 @@ def index():
     else:
         Current_Date, i = Date.get()
         Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d 00:00:00')  # format the date to ddmmyyyy
-        NextDay_Date = Current_Date + datetime.timedelta(days=1)
+        NextDay_Date = Current_Date + datetime.timedelta(days=0)
         Date_Formatted = NextDay_Date.strftime('%b-%d')
 
         labels, values = graph()
@@ -83,10 +83,8 @@ def index():
             i += 1
 
         date, fscores = avg()
-
         result = binary_search(date, 0, len(date), Current_Date_Formatted)
         fscore = '{:.0f}'.format(fscores[result])
-
         headings1 = ("Date", "Score")
         data1 = sugggestion()
 
@@ -216,12 +214,12 @@ def graph():
 
     return date, values
 
-@cached(cache)
+@cached(avge)
 def avg():
     conn = mysql.connect()
     cursor = conn.cursor()
 
-    sql_select_Query = "select datetime, fscore from heroku_5e2677edc19745f.average"
+    sql_select_Query = "select datetime, fscore from heroku_5e2677edc19745f.average order by datetime asc "
 
     cursor.execute(sql_select_Query)
     # get all records
@@ -229,9 +227,8 @@ def avg():
     values = []
     date = []
     for row in records:
-        date.append(row[0].strftime('%Y-%m-%d'))
+        date.append(row[0].strftime('%Y-%m-%d 00:00:00'))
         values.append(row[1])
-
     return date, values
 
 @cached(cache)
@@ -251,7 +248,7 @@ def getData(x, y):
     return records
 
 
-@cached(cache)
+@cached(suggest)
 def sugggestion():
 
     conn = mysql.connect()
