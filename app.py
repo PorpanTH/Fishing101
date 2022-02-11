@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, redirect, session, flash
 from flask_session import Session
 import datetime
@@ -11,9 +10,9 @@ from cachetools import cached, TTLCache
 from flask_caching import Cache
 
 app = Flask(__name__)
-cache=TTLCache(maxsize=1024, ttl=600)
-avge=TTLCache(maxsize=1024, ttl=600)
-suggest=TTLCache(maxsize=100, ttl=600)
+cache = TTLCache(maxsize=1024, ttl=600)
+avge = TTLCache(maxsize=1024, ttl=600)
+suggest = TTLCache(maxsize=100, ttl=600)
 
 mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = 'ba74ba05397a99'
@@ -26,6 +25,13 @@ app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+
+
+@app.after_request
+def add_header(response):
+    response.cache_control.max_age = 300
+    return response
+
 
 @app.route("/", methods=['GET', 'POST'])
 # @login_required
@@ -56,12 +62,12 @@ def index():
         data1 = sugggestion()
 
         context = {
-            'labels' : label,
-            'values' : value,
-            'today' : Date_Formatted,
-            'fscore' : fscore,
-            'headings1' : headings1,
-            'data1' : data1
+            'labels': label,
+            'values': value,
+            'today': Date_Formatted,
+            'fscore': fscore,
+            'headings1': headings1,
+            'data1': data1
         }
         return render_template("graph.html", **context)
     else:
@@ -77,7 +83,6 @@ def index():
         value = []
         label = []
         while i < 24:
-
             value.append(values[index + i])
             label.append(labels[index + i])
             i += 1
@@ -98,6 +103,7 @@ def index():
         }
         return render_template("graph.html", **context)
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     conn = mysql.connect()
@@ -110,7 +116,7 @@ def login():
         password = request.form['password']
 
         find_user = "select * from heroku_5e2677edc19745f.user1 where username = %s AND password = %s"
-        data =[]
+        data = []
         val = username, password
         data.append(val)
         cursor.executemany(find_user, data)
@@ -141,6 +147,7 @@ def data():
         'data': data
     }
     return render_template("weather.html", **context)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -193,6 +200,7 @@ def logout():
     # Redirect user to login form
     return redirect("/")
 
+
 @cached(cache)
 def graph():
     print("Connecting to mysql database")
@@ -214,6 +222,7 @@ def graph():
 
     return date, values
 
+
 @cached(avge)
 def avg():
     conn = mysql.connect()
@@ -231,6 +240,7 @@ def avg():
         values.append(row[1])
     return date, values
 
+
 @cached(cache)
 def getData(x, y):
     conn = mysql.connect()
@@ -238,8 +248,8 @@ def getData(x, y):
 
     sql_select_Query = "select * from heroku_5e2677edc19745f.weather_storm where datetime BETWEEN %(date1)s AND %(date2)s"
     data = {
-        'date1' : x,
-        'date2' : y
+        'date1': x,
+        'date2': y
     }
     cursor.execute(sql_select_Query, data)
     # get all records
@@ -250,7 +260,6 @@ def getData(x, y):
 
 @cached(suggest)
 def sugggestion():
-
     conn = mysql.connect()
     cursor = conn.cursor()
 
@@ -315,7 +324,6 @@ def errorhandler(e):
 def is_provided(field):
     if not request.form.get(field):
         return apology(f"must provide {field}", 403)
-
 
 
 for code in default_exceptions:
