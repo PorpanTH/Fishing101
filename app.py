@@ -19,6 +19,10 @@ app = Flask(__name__)
 # flask_cache_control.init_app(app)
 
 
+@app.after_request
+def add_header(response):
+    response.cache_control.max_age = 300
+    return response
 
 # app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 300
 
