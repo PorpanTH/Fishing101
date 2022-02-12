@@ -1,162 +1,28 @@
-{#<!DOCTYPE html>#}
-{#<html>#}
-{##}
-{#  <head>#}
-{#    <meta charset="utf-8">#}
-{#    <meta name="viewport" content="width=device-width, initial-scale=1">#}
-{#    <title>Register</title>#}
-{#      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css" />#}
-{#    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}"/>#}
-{#    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>#}
-{#  </head>#}
-{##}
-{#  <body style="background-color:light-green;">#}
-{#          <ul class="topnav" id="myTopnav">#}
-{#            <li class="text"><a href="/" class="active">Home</a></li>#}
-{#            <li class="text"><a href="/login">login</a></li>#}
-{#            <li class="text"><a href="/register">register</a></li>#}
-{#         </ul>#}
-{#          <section class="hero is-info is-fullheight">#}
-{#                <div class="form">#}
-{#                    {% with messages = get_flashed_messages() %}#}
-{#                        {% if messages %}#}
-{#                            <div class="notification is-danger">#}
-{#                                {{ messages[0] }}. Go to <a href="{{ url_for('login') }}">login page</a>.#}
-{#                            </div>#}
-{#                        {% endif %}#}
-{#                    {% endwith %}#}
-{#                    <form method="POST">#}
-{#                      <div class="field">#}
-{#                        <label class="label">Username</label>#}
-{#                        <div class="control has-icons-left has-icons-right">#}
-{#                          <input class="input" type="text" name="username" placeholder="Username">#}
-{#                            <input type="email" class="form-control" id="email" name="username" placeholder="Enter email"/>#}
-{#                          <span class="icon is-small is-left">#}
-{#                            <i class="fas fa-user"></i>#}
-{#                          </span>#}
-{#                        </div>#}
-{#                      </div>#}
-{#                      <div class="field">#}
-{#                        <label class="label">Firstname</label>#}
-{#                        <p class="control has-icons-left">#}
-{#                          <input class="input" type="firstname" name="firstname" placeholder="Firstname">#}
-{#                          <span class="icon is-small is-left">#}
-{#                            <i class="fas fa-lock"></i>#}
-{#                          </span>#}
-{#                        </p>#}
-{#                      </div>#}
-{#                      <div class="field">#}
-{#                        <label class="label">Lastname</label>#}
-{#                        <p class="control has-icons-left">#}
-{#                          <input class="input" type="lastname" name="lastname" placeholder="Lastname">#}
-{#                          <span class="icon is-small is-left">#}
-{#                            <i class="fas fa-lock"></i>#}
-{#                          </span>#}
-{#                        </p>#}
-{#                      </div>#}
-{#                      <div class="field">#}
-{#                        <label class="label">Password</label>#}
-{#                        <p class="control has-icons-left">#}
-{#                          <input class="input" type="password" name="password" placeholder="Password">#}
-{#                          <span class="icon is-small is-left">#}
-{#                            <i class="fas fa-lock"></i>#}
-{#                          </span>#}
-{#                        </p>#}
-{#                      </div>#}
-{#                      <div class="field">#}
-{#                        <label class="label">Reenters Password</label>#}
-{#                        <p class="control has-icons-left">#}
-{#                          <input class="input" type="password1" name="password1" placeholder="Reenters Password">#}
-{#                          <span class="icon is-small is-left">#}
-{#                            <i class="fas fa-lock"></i>#}
-{#                          </span>#}
-{#                        </p>#}
-{#                      </div>#}
-{#                      <div class="field">#}
-{#                        <p class="control">#}
-{#                          <button type="submit" class="button is-success">#}
-{#                            Register#}
-{#                          </button>#}
-{#                        </p>#}
-{#                      </div>#}
-{#                    </form>#}
-{#                  </div>#}
-{#                </section>#}
-{#    <form method="POST">#}
-{#      <h3 align="center">Sign Up</h3>#}
-{#      <div class="form-group">#}
-{#        <label for="email">Email Address</label>#}
-{#        <input#}
-{#          type="email"#}
-{#          class="form-control"#}
-{#          id="email"#}
-{#          name="email"#}
-{#          placeholder="Enter email"#}
-{#        />#}
-{#      </div>#}
-{#      <div class="form-group">#}
-{#        <label for="firstName">First Name</label>#}
-{#        <input#}
-{#          type="text"#}
-{#          class="form-control"#}
-{#          id="firstName"#}
-{#          name="firstName"#}
-{#          placeholder="Enter first name"#}
-{#        />#}
-{#      </div>#}
-{#        <div class="form-group">#}
-{#        <label for="lastName">Last Name</label>#}
-{#        <input#}
-{#          type="text"#}
-{#          class="form-control"#}
-{#          id="lastName"#}
-{#          name="lastName"#}
-{#          placeholder="Enter last name"#}
-{#        />#}
-{#      </div>#}
-{#      <div class="form-group">#}
-{#        <label for="password">Password</label>#}
-{#        <input#}
-{#          type="password"#}
-{#          class="form-control"#}
-{#          id="password"#}
-{#          name="password"#}
-{#          placeholder="Enter password"#}
-{#        />#}
-{#      </div>#}
-{#      <div class="form-group">#}
-{#        <label for="password1">Password (Confirm)</label>#}
-{#        <input#}
-{#          type="password"#}
-{#          class="form-control"#}
-{#          id="password1"#}
-{#          name="password1"#}
-{#          placeholder="Confirm password"#}
-{#        />#}
-{#      </div>#}
-{#      <br />#}
-{#      <button type="submit" class="btn btn-primary">Submit</button>#}
-{#    </form>#}
-{#  </body>#}
-{##}
-{#</html>#}
 
 {% extends 'base.html' %}
 
 {% block content %}
     <section class="hero is-info is-fullheight">
                 <div class="form">
-                    {% with messages = get_flashed_messages() %}
-                        {% if messages %}
-                            <div class="notification is-danger">
-                                {{ messages[0] }}. Go to <a href="{{ url_for('login') }}">login page</a>.
+                    {% with errors = get_flashed_messages(category_filter=["error"]) %}
+                        {% if errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ errors[0] }} Go to <a href="{{ url_for('login') }}">login page</a>.
                             </div>
                         {% endif %}
                     {% endwith %}
+                    {% with messages = get_flashed_messages(category_filter=["pass"]) %}
+                        {% if messages %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ messages[0] }}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
                     <form method="POST">
                       <div class="field">
                         <label class="label">Username</label>
-                        <div class="control has-icons-left has-icons-right">
+                        <div class="control has-icons-left">
 {#                          <input class="input" type="text" name="username" placeholder="Username">#}
                             <input type="email" class="form-control" id="email" name="username" placeholder="Enter email"/>
                           <span class="icon is-small is-left">
@@ -169,7 +35,7 @@
                         <p class="control has-icons-left">
                           <input class="input" type="firstname" name="firstname" placeholder="Firstname">
                           <span class="icon is-small is-left">
-                            <i class="fas fa-lock"></i>
+                            <i class="fas fa-user"></i>
                           </span>
                         </p>
                       </div>
@@ -192,7 +58,7 @@
                         </p>
                       </div>
                       <div class="field">
-                        <label class="label">Reenters Password</label>
+                        <label class="label">Re-enters Password</label>
                         <p class="control has-icons-left">
                           <input class="input" type="password1" name="password1" placeholder="Reenters Password">
                           <span class="icon is-small is-left">
