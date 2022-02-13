@@ -28,7 +28,6 @@ mysql.init_app(app)
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-app.config['SESSION_COOKIE_NAME'] = "my_session"
 Session(app)
 
 @app.after_request
@@ -123,14 +122,12 @@ def login():
     conn = mysql.connect()
     cursor = conn.cursor()
     if request.method == 'POST':
-        session.pop("email", None)
+        session.pop('email', None)
         username = request.form['email']  # request email as session
-
         password = request.form['password']  # request password
 
         find_user = "select * from heroku_5e2677edc19745f.user1 where username  ='%s'" % (username)
         # retrieve all the users in the database
-        print(username)
         cursor.execute(find_user)
         results = cursor.fetchall()
         hash = []
@@ -139,15 +136,19 @@ def login():
             account.append(row[1])
             hash.append(row[4])
 
-        if account[0] != username or check_password_hash(hash[0], password) or len(password)==0:
+        if account[0] == username and check_password_hash(hash[0], password) and len(password) != 0:
+            session['email'] = username  # let username be session
+            return redirect("/")
+        else:
             flash('Please check your login details and try again.')
             return redirect("/login")
         # if username inputed is not in the retrieved list, then out put the message
-        session["email"] = username# let username be session
-        return redirect("/")
 
-    else:
-        return render_template("login.html")
+
+        return redirect("/login")
+
+
+    return render_template("login.html")
 
 
 @app.route("/data", methods=['GET', 'POST'])
