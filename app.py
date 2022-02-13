@@ -11,6 +11,7 @@ from cachetools import cached, TTLCache
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)
 
 cache = TTLCache(maxsize=1024, ttl=6000)
 avge = TTLCache(maxsize=1024, ttl=6000)
@@ -347,8 +348,8 @@ def is_provided(field):
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
 
-# if __name__ == '__main__':
-#     # port = int(os.environ.get('PORT', 5000))
-#     # app.run(host='0.0.0.0', port=port)
-#
-#     app.run()
+if __name__ == '__main__':
+    # port = int(os.environ.get('PORT', 5000))
+    # app.run(host='0.0.0.0', port=port)
+
+    app.run()
