@@ -142,9 +142,11 @@ def login():
             hash.append(row[4])
         print(hash)
         print(account)
-        if account[0] != username or check_password_hash(hash[0], password):
+        if account[0] != username or check_password_hash(hash[0], password) or len(password)==0:
             flash('Please check your login details and try again.')
             return redirect("/login")
+        session["email"] = username
+        session.permanent = True
         # if username inputed is not in the retrieved list, then out put the message
         return redirect("/")
 
