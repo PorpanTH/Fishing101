@@ -50,78 +50,82 @@ def add_header(response):
 @app.route("/", methods=['GET', 'POST'])
 @login_required
 def index():
-    if request.method == 'POST':
-        if request.form.get('action1') == '>':
-            Current_Date, i = Date.add(1)  # navigating date using class
-        elif request.form.get('action2') == '<':
-            Current_Date, i = Date.minus(1)
-        Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d 00:00:00')  # format the date to yyymmdd
-        NextDay_Date = Current_Date + datetime.timedelta(days=0)
-        Date_Formatted = NextDay_Date.strftime('%b-%d')
-        labels, values = graph()
-        # retrieve data from the database, only request once as the data is cached into memory
-        index = binary_search(labels, 0, len(labels), Current_Date_Formatted)
-        # locate today's date in the list
-        i = 0
+    try:
+        if request.method == 'POST':
+            if request.form.get('action1') == '>':
+                Current_Date, i = Date.add(1)  # navigating date using class
+            elif request.form.get('action2') == '<':
+                Current_Date, i = Date.minus(1)
+            Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d 00:00:00')  # format the date to yyymmdd
+            NextDay_Date = Current_Date + datetime.timedelta(days=0)
+            Date_Formatted = NextDay_Date.strftime('%b-%d')
+            labels, values = graph()
+            # retrieve data from the database, only request once as the data is cached into memory
+            index = binary_search(labels, 0, len(labels), Current_Date_Formatted)
+            # locate today's date in the list
+            i = 0
 
-        value = []
-        label = []
-        while i < 24:
-            value.append(values[index + i])
-            label.append(labels[index + i])
-            # add today's score and time into new lists
-            i += 1
+            value = []
+            label = []
+            while i < 24:
+                value.append(values[index + i])
+                label.append(labels[index + i])
+                # add today's score and time into new lists
+                i += 1
 
-        date, fscores = avg()
-        # load data from average table, only once as already cached
-        result = binary_search(date, 0, len(date), Current_Date_Formatted)
-        fscore = f'{fscores[result]:.0f}'
-        headings1 = ("Date", "Score")
-        # find today's date and its corresponding score
-        data1 = sugggestion()
-        # cached data of best days this month
-        context = {
-            'labels': label,
-            'values': value,
-            'today': Date_Formatted,
-            'fscore': fscore,
-            'headings1': headings1,
-            'data1': data1
-        }  # combine all data into a dictionary for faster HTML connection
-        return render_template("graph.html", **context)
-    else:
-        Current_Date, i = Date.get()
-        Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d 00:00:00')  # format the date to ddmmyyyy
-        NextDay_Date = Current_Date + datetime.timedelta(days=0)
-        Date_Formatted = NextDay_Date.strftime('%b-%d')
+            date, fscores = avg()
+            # load data from average table, only once as already cached
+            result = binary_search(date, 0, len(date), Current_Date_Formatted)
+            fscore = f'{fscores[result]:.0f}'
+            headings1 = ("Date", "Score")
+            # find today's date and its corresponding score
+            data1 = sugggestion()
+            # cached data of best days this month
+            context = {
+                'labels': label,
+                'values': value,
+                'today': Date_Formatted,
+                'fscore': fscore,
+                'headings1': headings1,
+                'data1': data1
+            }  # combine all data into a dictionary for faster HTML connection
+            return render_template("graph.html", **context)
+        else:
+            Current_Date, i = Date.get()
+            Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d 00:00:00')  # format the date to ddmmyyyy
+            NextDay_Date = Current_Date + datetime.timedelta(days=0)
+            Date_Formatted = NextDay_Date.strftime('%b-%d')
 
-        labels, values = graph()
-        index = binary_search(labels, 0, len(labels), Current_Date_Formatted)
-        i = 0
+            labels, values = graph()
+            index = binary_search(labels, 0, len(labels), Current_Date_Formatted)
+            i = 0
 
-        value = []
-        label = []
-        while i < 24:
-            value.append(values[index + i])
-            label.append(labels[index + i])
-            i += 1
+            value = []
+            label = []
+            while i < 24:
+                value.append(values[index + i])
+                label.append(labels[index + i])
+                i += 1
 
-        date, fscores = avg()
-        result = binary_search(date, 0, len(date), Current_Date_Formatted)
-        fscore = '{:.0f}'.format(fscores[result])
-        headings1 = ("Date", "Score")
-        data1 = sugggestion()
+            date, fscores = avg()
+            result = binary_search(date, 0, len(date), Current_Date_Formatted)
+            fscore = '{:.0f}'.format(fscores[result])
+            headings1 = ("Date", "Score")
+            data1 = sugggestion()
 
-        context = {
-            'labels': label,
-            'values': value,
-            'today': Date_Formatted,
-            'fscore': fscore,
-            'headings1': headings1,
-            'data1': data1
-        }
-        return render_template("graph.html", **context)
-
+            context = {
+                'labels': label,
+                'values': value,
+                'today': Date_Formatted,
+                'fscore': fscore,
+                'headings1': headings1,
+                'data1': data1
+            }
+            return render_template("graph.html", **context)
+    except:
+        Current_Date, i = Date.minus(1)
+        flash('No data available for this date. Sorry.')
+        return redirect("/")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
