@@ -7,6 +7,7 @@ from helpers import apology, login_required
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from flaskext.mysql import MySQL
 from cachetools import cached, TTLCache
+from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 
@@ -125,14 +126,20 @@ def login():
         username = session["email"]  # let username be session
         password = request.form['password']  # request password
 
-        find_user = "select * from heroku_5e2677edc19745f.user1 where username = %s AND password = %s"
+        find_user = "select * from heroku_5e2677edc19745f.user1 where username  ='%s'" % (username)
         # retrieve all the users in the database
-        data = []
-        val = username, password
-        data.append(val)
-        cursor.executemany(find_user, data)
+        print(username)
+        cursor.execute(find_user)
         results = cursor.fetchall()
-        if not results:
+        hash = []
+        account = []
+        print(results)
+        for row in results:
+            account.append(row[1])
+            hash.append(row[4])
+        print(hash)
+        print(account)
+        if account[0] != username or check_password_hash(hash[0], password):
             flash('Please check your login details and try again.')
             return redirect("/login")
         # if username inputed is not in the retrieved list, then out put the message
@@ -193,12 +200,12 @@ def register():
                     # password = request.form['password']
                     # password1 = request.form['password1']
                     return render_template('register.html')
-
+                hash = generate_password_hash(password)
                 insertData = """INSERT INTO heroku_5e2677edc19745f.user1
                             (username,firstname, lastname, password)
                             VALUES (%s, %s, %s, %s)"""
 
-                cursor.execute(insertData, (username, firstname, lastname, password))
+                cursor.execute(insertData, (username, firstname, lastname, hash))
                 session["email"] = username
                 conn.commit()
                 return redirect("/")
