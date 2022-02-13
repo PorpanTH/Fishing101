@@ -140,7 +140,7 @@ def login():
 
         # print("Password input: " + password)
         # print(check_password_hash(hash[0], password))
-        if len(account) != 1 or not check_password_hash(var, password):
+        if len(account) != 1 or not check_password_hash(hash[0], password):
             flash('Please check your login details and try again.')
             return redirect("/login")
         session["email"] = username
