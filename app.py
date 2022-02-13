@@ -8,19 +8,16 @@ from werkzeug.exceptions import default_exceptions, HTTPException, InternalServe
 from flaskext.mysql import MySQL
 from cachetools import cached, TTLCache
 from flask_caching import Cache
+from flask_cacheify import init_cacheify
 
-# from flask_cachecontrol import (
-#     FlaskCacheControl,
-#     cache,
-#     cache_for,
-#     dont_cache)
 app = Flask(__name__)
 
 # flask_cache_control = FlaskCacheControl()
 # flask_cache_control.init_app(app)
-cache = TTLCache(maxsize=1024, ttl=6000)
-avge = TTLCache(maxsize=1024, ttl=6000)
-suggest = TTLCache(maxsize=100, ttl=6000)
+# cache = TTLCache(maxsize=1024, ttl=6000)
+# avge = TTLCache(maxsize=1024, ttl=6000)
+# suggest = TTLCache(maxsize=100, ttl=6000)
+# cache = init_cacheify(app)
 
 mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = 'ba74ba05397a99'
@@ -45,77 +42,77 @@ def add_header(response):
 @login_required
 def index():
     #try:
-        if request.method == 'POST':
-            if request.form.get('action1') == '>':
-                Current_Date, i = Date.add(1)  # navigating date using class
-            elif request.form.get('action2') == '<':
-                Current_Date, i = Date.minus(1)
-            Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d 00:00:00')  # format the date to yyymmdd
-            NextDay_Date = Current_Date + datetime.timedelta(days=0)
-            Date_Formatted = NextDay_Date.strftime('%b-%d')
-            labels, values = graph()
-            # retrieve data from the database, only request once as the data is cached into memory
-            index = binary_search(labels, 0, len(labels), Current_Date_Formatted)
-            # locate today's date in the list
-            i = 0
+    if request.method == 'POST':
+        if request.form.get('action1') == '>':
+            Current_Date, i = Date.add(1)  # navigating date using class
+        elif request.form.get('action2') == '<':
+            Current_Date, i = Date.minus(1)
+        Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d 00:00:00')  # format the date to yyymmdd
+        NextDay_Date = Current_Date + datetime.timedelta(days=0)
+        Date_Formatted = NextDay_Date.strftime('%b-%d')
+        labels, values = graph()
+        # retrieve data from the database, only request once as the data is cached into memory
+        index = binary_search(labels, 0, len(labels), Current_Date_Formatted)
+        # locate today's date in the list
+        i = 0
 
-            value = []
-            label = []
-            while i < 24:
-                value.append(values[index + i])
-                label.append(labels[index + i])
-                # add today's score and time into new lists
-                i += 1
+        value = []
+        label = []
+        while i < 24:
+            value.append(values[index + i])
+            label.append(labels[index + i])
+            # add today's score and time into new lists
+            i += 1
 
-            date, fscores = avg()
-            # load data from average table, only once as already cached
-            result = binary_search(date, 0, len(date), Current_Date_Formatted)
-            fscore = f'{fscores[result]:.0f}'
-            headings1 = ("Date", "Score")
-            # find today's date and its corresponding score
-            data1 = sugggestion()
-            # cached data of best days this month
-            context = {
-                'labels': label,
-                'values': value,
-                'today': Date_Formatted,
-                'fscore': fscore,
-                'headings1': headings1,
-                'data1': data1
-            }  # combine all data into a dictionary for faster HTML connection
-            return render_template("graph.html", **context)
-        else:
-            Current_Date, i = Date.get()
-            Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d 00:00:00')  # format the date to ddmmyyyy
-            NextDay_Date = Current_Date + datetime.timedelta(days=0)
-            Date_Formatted = NextDay_Date.strftime('%b-%d')
+        date, fscores = avg()
+        # load data from average table, only once as already cached
+        result = binary_search(date, 0, len(date), Current_Date_Formatted)
+        fscore = f'{fscores[result]:.0f}'
+        headings1 = ("Date", "Score")
+        # find today's date and its corresponding score
+        data1 = sugggestion()
+        # cached data of best days this month
+        context = {
+            'labels': label,
+            'values': value,
+            'today': Date_Formatted,
+            'fscore': fscore,
+            'headings1': headings1,
+            'data1': data1
+        }  # combine all data into a dictionary for faster HTML connection
+        return render_template("graph.html", **context)
+    else:
+        Current_Date, i = Date.get()
+        Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d 00:00:00')  # format the date to ddmmyyyy
+        NextDay_Date = Current_Date + datetime.timedelta(days=0)
+        Date_Formatted = NextDay_Date.strftime('%b-%d')
 
-            labels, values = graph()
-            index = binary_search(labels, 0, len(labels), Current_Date_Formatted)
-            i = 0
+        labels, values = graph()
+        index = binary_search(labels, 0, len(labels), Current_Date_Formatted)
+        i = 0
 
-            value = []
-            label = []
-            while i < 24:
-                value.append(values[index + i])
-                label.append(labels[index + i])
-                i += 1
+        value = []
+        label = []
+        while i < 24:
+            value.append(values[index + i])
+            label.append(labels[index + i])
+            i += 1
 
-            date, fscores = avg()
-            result = binary_search(date, 0, len(date), Current_Date_Formatted)
-            fscore = '{:.0f}'.format(fscores[result])
-            headings1 = ("Date", "Score")
-            data1 = sugggestion()
+        date, fscores = avg()
+        result = binary_search(date, 0, len(date), Current_Date_Formatted)
+        fscore = '{:.0f}'.format(fscores[result])
+        headings1 = ("Date", "Score")
+        data1 = sugggestion()
 
-            context = {
-                'labels': label,
-                'values': value,
-                'today': Date_Formatted,
-                'fscore': fscore,
-                'headings1': headings1,
-                'data1': data1
-            }
-            return render_template("graph.html", **context)
+        context = {
+            'labels': label,
+            'values': value,
+            'today': Date_Formatted,
+            'fscore': fscore,
+            'headings1': headings1,
+            'data1': data1
+        }
+        return render_template("graph.html", **context)
     # except:
     #     Current_Date, i = Date.minus(1)
     #     flash('No data available for this date. Sorry.')
@@ -225,7 +222,8 @@ def logout():
     return redirect("/")
 
 
-@cached(cache)
+# @cached(cache)
+# @cache.cached(timeout=50, key_prefix='graph')
 def graph():
     print("Connecting to mysql database")
     conn = mysql.connect()
@@ -247,7 +245,8 @@ def graph():
     return date, values
 
 
-@cached(avge)
+# @cached(avge)
+# @cache.cached(timeout=50, key_prefix='avg')
 def avg():
     conn = mysql.connect()
     cursor = conn.cursor()
@@ -265,7 +264,8 @@ def avg():
     return date, values
 
 
-@cached(cache)
+# @cached(cache)
+# @cache.cached(timeout=50, key_prefix='get_data')
 def getData(x, y):
     conn = mysql.connect()
     cursor = conn.cursor()
@@ -282,7 +282,8 @@ def getData(x, y):
     return records
 
 
-@cached(suggest)
+# @cached(suggest)
+# @cache.cached(timeout=50, key_prefix='suggest')
 def sugggestion():
     conn = mysql.connect()
     cursor = conn.cursor()
