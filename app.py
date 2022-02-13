@@ -27,6 +27,13 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+@app.after_request
+def add_header(response):
+    # response.cache_control.no_store = True
+    if 'Cache-Control' not in response.headers:
+        response.headers['Cache-Control'] = 'no-store'
+    return response
+
 @app.route("/", methods=['GET', 'POST'])
 @login_required
 def index():
