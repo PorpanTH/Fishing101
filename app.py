@@ -136,7 +136,7 @@ def login():
             account.append(row[1])
             hash.append(row[4])
 
-        if account[0] == username and check_password_hash(hash[0], password) and len(password) != 0:
+        if account[0] == username and check_password_hash(hash[0], password):
             session['email'] = username  # let username be session
             return redirect("/")
         else:
@@ -145,7 +145,7 @@ def login():
         # if username inputed is not in the retrieved list, then out put the message
 
 
-        return redirect("/login")
+        # return redirect("/login")
 
 
     return render_template("login.html")
