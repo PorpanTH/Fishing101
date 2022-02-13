@@ -8,6 +8,7 @@ from werkzeug.exceptions import default_exceptions, HTTPException, InternalServe
 from flaskext.mysql import MySQL
 from cachetools import cached, TTLCache
 from flask_caching import Cache
+
 # from flask_cachecontrol import (
 #     FlaskCacheControl,
 #     cache,
@@ -17,7 +18,6 @@ app = Flask(__name__)
 
 # flask_cache_control = FlaskCacheControl()
 # flask_cache_control.init_app(app)
-
 
 
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 300
@@ -52,16 +52,16 @@ def add_header(response):
 def index():
     if request.method == 'POST':
         if request.form.get('action1') == '>':
-            Current_Date, i = Date.add(1) #navigating date using class
+            Current_Date, i = Date.add(1)  # navigating date using class
         elif request.form.get('action2') == '<':
             Current_Date, i = Date.minus(1)
         Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d 00:00:00')  # format the date to yyymmdd
         NextDay_Date = Current_Date + datetime.timedelta(days=0)
         Date_Formatted = NextDay_Date.strftime('%b-%d')
         labels, values = graph()
-        #retrieve data from the database, only request once as the data is cached into memory
+        # retrieve data from the database, only request once as the data is cached into memory
         index = binary_search(labels, 0, len(labels), Current_Date_Formatted)
-        #locate today's date in the list
+        # locate today's date in the list
         i = 0
 
         value = []
@@ -69,17 +69,17 @@ def index():
         while i < 24:
             value.append(values[index + i])
             label.append(labels[index + i])
-            #add today's score and time into new lists
+            # add today's score and time into new lists
             i += 1
 
         date, fscores = avg()
-        #load data from average table, only once as already cached
+        # load data from average table, only once as already cached
         result = binary_search(date, 0, len(date), Current_Date_Formatted)
         fscore = f'{fscores[result]:.0f}'
         headings1 = ("Date", "Score")
-        #find today's date and its corresponding score
+        # find today's date and its corresponding score
         data1 = sugggestion()
-        #cached data of best days this month
+        # cached data of best days this month
         context = {
             'labels': label,
             'values': value,
@@ -87,7 +87,7 @@ def index():
             'fscore': fscore,
             'headings1': headings1,
             'data1': data1
-        } #combine all data into a dictionary for faster HTML connection
+        }  # combine all data into a dictionary for faster HTML connection
         return render_template("graph.html", **context)
     else:
         Current_Date, i = Date.get()
@@ -130,12 +130,12 @@ def login():
 
     if request.method == 'POST':
 
-        session["email"] = request.form['email'] #request email as session
-        username = session["email"]  #let username be session
-        password = request.form['password'] #request password
+        session["email"] = request.form['email']  # request email as session
+        username = session["email"]  # let username be session
+        password = request.form['password']  # request password
 
         find_user = "select * from heroku_5e2677edc19745f.user1 where username = %s AND password = %s"
-        #retrieve all the users in the database
+        # retrieve all the users in the database
         data = []
         val = username, password
         data.append(val)
@@ -144,7 +144,7 @@ def login():
         if not results:
             flash('Please check your login details and try again.')
             return redirect("/login")
-        #if username inputed is not in the retrieved list, then out put the message
+        # if username inputed is not in the retrieved list, then out put the message
         return redirect("/")
 
     else:
@@ -154,39 +154,21 @@ def login():
 @app.route("/data", methods=['GET', 'POST'])
 @login_required
 def data():
-    if request.method == 'POST':
-        if request.form.get('action1') == '>':
-            Current_Date, i = Date.add(1) #navigating date using class
-        elif request.form.get('action2') == '<':
-            Current_Date, i = Date.minus(1)
-        Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
-        Present_Date = Current_Date.strftime('%Y %b %d')
-        NextDay_Date = Current_Date + datetime.timedelta(days=1)
-        NextDay_Date_Formatted = NextDay_Date.strftime('%Y-%m-%d')
-        headings = ("Time", "swell height", "swell period", "wind speed", "moon phase")
-        data = getData(Current_Date_Formatted, NextDay_Date_Formatted)
+    Current_Date, i = Date.get()
+    Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
+    Present_Date = Current_Date.strftime('%Y %b %d')
+    NextDay_Date = Current_Date + datetime.timedelta(days=1)
+    NextDay_Date_Formatted = NextDay_Date.strftime('%Y-%m-%d')
+    headings = ("Time", "swell height", "swell period", "wind speed", "moon phase")
+    data = getData(Current_Date_Formatted, NextDay_Date_Formatted)
 
-        context = {
-            'today': Present_Date,
-            'headings': headings,
-            'data': data
-        }
-        return render_template("weather.html", **context)
-    else:
-        Current_Date, i = Date.get()
-        Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
-        Present_Date = Current_Date.strftime('%Y %b %d')
-        NextDay_Date = Current_Date + datetime.timedelta(days=1)
-        NextDay_Date_Formatted = NextDay_Date.strftime('%Y-%m-%d')
-        headings = ("Time", "swell height", "swell period", "wind speed", "moon phase")
-        data = getData(Current_Date_Formatted, NextDay_Date_Formatted)
+    context = {
+        'today': Present_Date,
+        'headings': headings,
+        'data': data
+    }
+    return render_template("weather.html", **context)
 
-        context = {
-            'today': Present_Date,
-            'headings': headings,
-            'data': data
-        }
-        return render_template("weather.html", **context)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -210,6 +192,11 @@ def register():
                 lastname = request.form['lastname']
                 password = request.form['password']
                 password1 = request.form['password1']
+                if len(firstname) == 0 or len(lastname) == 0 or len(password) == 0 or len(password1) == 0:
+                    flash('Please fill all the fields below.', 'pass')
+                    # password = request.form['password']
+                    # password1 = request.form['password1']
+                    return render_template('register.html')
                 while password != password1:
                     flash('Password does not match!', 'pass')
                     # password = request.form['password']
