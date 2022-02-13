@@ -146,7 +146,7 @@ def login():
             flash('Please check your login details and try again.')
             return redirect("/login")
         session["email"] = username
-        session.permanent = True
+        session.commit()
         # if username inputed is not in the retrieved list, then out put the message
         return redirect("/")
 
@@ -212,6 +212,7 @@ def register():
 
                 cursor.execute(insertData, (username, firstname, lastname, hash))
                 session["email"] = username
+                session.commit()
                 conn.commit()
                 return redirect("/")
     return render_template('register.html')
