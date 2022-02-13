@@ -34,7 +34,7 @@ Session(app)
 @app.after_request
 def after_request(response):
     response.headers["Cache-Control"] = "public, no-store,max-age=604800, must-revalidate"
-    response.headers["Expires"] = 0
+    response.headers["Expires"] = 600
     # response.headers["Pragma"] = "no-cache"
     return response
 
