@@ -16,4 +16,3 @@ mysql-connector-python~=8.0.25
 PyMySQL==1.0.2
 Werkzeug==2.0.2
 requests~=2.25.1
-redis==2.4.13
