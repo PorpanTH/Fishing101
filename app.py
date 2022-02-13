@@ -125,7 +125,6 @@ def login():
     if request.method == 'POST':
 
         username = request.form['email']  # request email as session
-
         password = request.form['password']  # request password
 
         find_user = "select * from heroku_5e2677edc19745f.user1 where username  ='%s'" % (username)
@@ -138,12 +137,14 @@ def login():
             account.append(row[1])
             hash.append(row[4])
 
-        if account[0] != username or check_password_hash(hash[0], password) or len(password)==0:
+        if account[0] == username or check_password_hash(hash[0], password):
+            session["email"] = username  # let username be session
+            return redirect("/")
+        else:
             flash('Please check your login details and try again.')
             return redirect("/login")
         # if username inputed is not in the retrieved list, then out put the message
-        session["email"] = username# let username be session
-        return redirect("/")
+
 
     else:
         return render_template("login.html")
@@ -192,13 +193,9 @@ def register():
                 password1 = request.form['password1']
                 if len(firstname) == 0 or len(lastname) == 0 or len(password) == 0 or len(password1) == 0:
                     flash('Please fill all the fields below.', 'pass')
-                    # password = request.form['password']
-                    # password1 = request.form['password1']
                     return render_template('register.html')
                 while password != password1:
                     flash('Password does not match!', 'pass')
-                    # password = request.form['password']
-                    # password1 = request.form['password1']
                     return render_template('register.html')
                 hash = generate_password_hash(password)
                 insertData = """INSERT INTO heroku_5e2677edc19745f.user1
