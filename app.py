@@ -11,12 +11,10 @@ from cachetools import cached, TTLCache
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
-
-
+sess = Session()
 cache = TTLCache(maxsize=1024, ttl=6000)
 avge = TTLCache(maxsize=1024, ttl=6000)
 suggest = TTLCache(maxsize=100, ttl=6000)
-
 
 mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = 'ba74ba05397a99'
@@ -25,11 +23,11 @@ app.config['MYSQL_DATABASE_DB'] = 'heroku_5e2677edc19745f'
 app.config['MYSQL_DATABASE_HOST'] = 'us-cdbr-east-04.cleardb.com'
 mysql.init_app(app)
 # app.config['SECRET_KEY'] = os.urandom(24)
-app.config['SECRET_KEY'] = 'chongfahresortandramadakhaolak'
-# app.config["SESSION_FILE_DIR"] = mkdtemp()
-app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "redis"
-Session(app)
+# app.config['SECRET_KEY'] = 'chongfahresortandramadakhaolak'
+# # app.config["SESSION_FILE_DIR"] = mkdtemp()
+# app.config["SESSION_PERMANENT"] = False
+# app.config["SESSION_TYPE"] = "redis"
+# Session(app)
 
 @app.after_request
 def add_header(response):
@@ -347,8 +345,11 @@ def is_provided(field):
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
 
-# if __name__ == '__main__':
-#     # port = int(os.environ.get('PORT', 5000))
-#     # app.run(host='0.0.0.0', port=port)
-#
-#     app.run()
+if __name__ == '__main__':
+    app.secret_key = 'super secret key'
+    app.config['SESSION_TYPE'] = 'filesystem'
+
+    sess.init_app(app)
+
+    app.debug = True
+    app.run()
