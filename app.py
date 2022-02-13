@@ -207,9 +207,8 @@ def register():
                             VALUES (%s, %s, %s, %s)"""
 
                 cursor.execute(insertData, (username, firstname, lastname, hash))
-                session["email"] = username
                 conn.commit()
-                return redirect("/")
+                return redirect("/login")
     return render_template('register.html')
 
 
