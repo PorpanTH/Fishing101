@@ -24,7 +24,7 @@ app.config['MYSQL_DATABASE_PASSWORD'] = 'b48cfd68'
 app.config['MYSQL_DATABASE_DB'] = 'heroku_5e2677edc19745f'
 app.config['MYSQL_DATABASE_HOST'] = 'us-cdbr-east-04.cleardb.com'
 mysql.init_app(app)
-app.config['SECRET_KEY'] = os.urandom(24)
+# app.config['SECRET_KEY'] = os.urandom(24)
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -348,8 +348,8 @@ def is_provided(field):
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
 
-if __name__ == '__main__':
-    # port = int(os.environ.get('PORT', 5000))
-    # app.run(host='0.0.0.0', port=port)
-
-    app.run()
+# if __name__ == '__main__':
+#     # port = int(os.environ.get('PORT', 5000))
+#     # app.run(host='0.0.0.0', port=port)
+#
+#     app.run()
