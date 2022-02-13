@@ -11,7 +11,7 @@ from cachetools import cached, TTLCache
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
-app.secret_key = 'chongfahresortandramadakhaolak'
+
 
 cache = TTLCache(maxsize=1024, ttl=6000)
 avge = TTLCache(maxsize=1024, ttl=6000)
@@ -25,9 +25,10 @@ app.config['MYSQL_DATABASE_DB'] = 'heroku_5e2677edc19745f'
 app.config['MYSQL_DATABASE_HOST'] = 'us-cdbr-east-04.cleardb.com'
 mysql.init_app(app)
 # app.config['SECRET_KEY'] = os.urandom(24)
-app.config["SESSION_FILE_DIR"] = mkdtemp()
+app.config['SECRET_KEY'] = 'chongfahresortandramadakhaolak'
+# app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
-app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_TYPE"] = "redis"
 Session(app)
 
 @app.after_request
