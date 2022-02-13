@@ -135,8 +135,8 @@ def login():
         for row in results:
             account.append(row[1])
             hash.append(row[4])
-
-        if account[0] == username and check_password_hash(hash[0], password):
+        print(check_password_hash(hash[0], password))
+        if account[0] == username and not check_password_hash(hash[0], password):
             session['email'] = username  # let username be session
             return redirect("/")
         else:
