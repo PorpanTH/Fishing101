@@ -122,11 +122,10 @@ def index():
 def login():
     conn = mysql.connect()
     cursor = conn.cursor()
-    session.clear()
     if request.method == 'POST':
+        session.pop("email", None)
+        username = request.form['email']  # request email as session
 
-        session["email"] = request.form['email']  # request email as session
-        username = session["email"]  # let username be session
         password = request.form['password']  # request password
 
         find_user = "select * from heroku_5e2677edc19745f.user1 where username  ='%s'" % (username)
@@ -144,6 +143,7 @@ def login():
             flash('Please check your login details and try again.')
             return redirect("/login")
         # if username inputed is not in the retrieved list, then out put the message
+        session["email"] = username# let username be session
         return redirect("/")
 
     else:
