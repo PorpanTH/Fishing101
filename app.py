@@ -170,7 +170,7 @@ def register():
                 flash('Email address already exists', 'error')
                 return redirect("/register")
             else:
-                found = 1
+                found == 1
 
                 firstname = request.form['firstname']
                 lastname = request.form['lastname']
@@ -190,10 +190,8 @@ def register():
                 insertData = """INSERT INTO heroku_5e2677edc19745f.user1
                             (username,firstname, lastname, password)
                             VALUES (%s, %s, %s, %s)"""
-                data = []
-                val = username, firstname, lastname, password
-                data.append(val)
-                cursor.execute(insertData, data)
+
+                cursor.execute(insertData, (username, firstname, lastname, password))
                 session["email"] = username
                 conn.commit()
                 return redirect("/")
