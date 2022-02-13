@@ -44,7 +44,7 @@ Session(app)
 @app.route("/", methods=['GET', 'POST'])
 @login_required
 def index():
-    try:
+    #try:
         if request.method == 'POST':
             if request.form.get('action1') == '>':
                 Current_Date, i = Date.add(1)  # navigating date using class
@@ -116,10 +116,10 @@ def index():
                 'data1': data1
             }
             return render_template("graph.html", **context)
-    except:
-        Current_Date, i = Date.minus(1)
-        flash('No data available for this date. Sorry.')
-        return redirect("/")
+    # except:
+    #     Current_Date, i = Date.minus(1)
+    #     flash('No data available for this date. Sorry.')
+    #     return redirect("/")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
