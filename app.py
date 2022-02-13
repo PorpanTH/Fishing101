@@ -122,7 +122,7 @@ def index():
 def login():
     conn = mysql.connect()
     cursor = conn.cursor()
-
+    session.clear()
     if request.method == 'POST':
 
         session["email"] = request.form['email']  # request email as session
@@ -136,17 +136,13 @@ def login():
         results = cursor.fetchall()
         hash = []
         account = []
-        print(results)
         for row in results:
             account.append(row[1])
             hash.append(row[4])
-        print(hash)
-        print(account)
+
         if account[0] != username or check_password_hash(hash[0], password) or len(password)==0:
             flash('Please check your login details and try again.')
             return redirect("/login")
-        session["email"] = username
-        session.commit()
         # if username inputed is not in the retrieved list, then out put the message
         return redirect("/")
 
@@ -212,7 +208,6 @@ def register():
 
                 cursor.execute(insertData, (username, firstname, lastname, hash))
                 session["email"] = username
-                session.commit()
                 conn.commit()
                 return redirect("/")
     return render_template('register.html')
