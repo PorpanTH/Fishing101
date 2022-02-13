@@ -16,6 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/style.css') }}" />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <style>
         .stars-outer {
           display: inline-block;
@@ -51,6 +52,13 @@
 
         }
 
+        footer{
+          text-align: center;
+          font-size: 12px;
+          padding: 3px;
+          position:absolute;
+          bottom:0;
+        }
     </style>
 </head>
 <body>
@@ -66,5 +74,9 @@
     <div class="content">
         {% block content %} {% endblock %}
     </div>
+
+    <footer>
+      <p>Icon from Flaticon</p>
+    </footer>
 </body>
 </html>
