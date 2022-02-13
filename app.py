@@ -18,9 +18,9 @@ app = Flask(__name__)
 
 # flask_cache_control = FlaskCacheControl()
 # flask_cache_control.init_app(app)
-cache = TTLCache(maxsize=1024, ttl=600)
-avge = TTLCache(maxsize=1024, ttl=600)
-suggest = TTLCache(maxsize=100, ttl=600)
+cache = TTLCache(maxsize=1024, ttl=6000)
+avge = TTLCache(maxsize=1024, ttl=6000)
+suggest = TTLCache(maxsize=100, ttl=6000)
 
 mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = 'ba74ba05397a99'
@@ -35,10 +35,10 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 
-# @app.after_request
-# def add_header(response):
-#     response.cache_control.max_age = 600
-#     return response
+@app.after_request
+def add_header(response):
+    response.cache_control.max_age = 6000
+    return response
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -322,11 +322,6 @@ class Date:
         cls.currentDate -= datetime.timedelta(days=x)
         cls.i -= x
         return cls.currentDate, cls.i
-
-    @classmethod
-    def set(cls, x):
-        cls.i = x
-        return cls.i
 
     @classmethod
     def get(cls):
