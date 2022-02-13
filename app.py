@@ -32,10 +32,10 @@ app.config['SESSION_COOKIE_NAME'] = "my_session"
 Session(app)
 
 @app.after_request
-def add_header(response):
-    # response.cache_control.no_store = True
-    if 'Cache-Control' not in response.headers:
-        response.headers['Cache-Control'] = 'no-store'
+def after_request(response):
+    response.headers["Cache-Control"] = "public, no-store,max-age=604800, must-revalidate"
+    response.headers["Expires"] = 6000
+    # response.headers["Pragma"] = "no-cache"
     return response
 
 @app.route("/", methods=['GET', 'POST'])
@@ -122,6 +122,7 @@ def index():
 def login():
     conn = mysql.connect()
     cursor = conn.cursor()
+    session.clear()
     if request.method == 'POST':
 
         username = request.form['email']  # request email as session
@@ -137,14 +138,16 @@ def login():
             account.append(row[1])
             hash.append(row[4])
 
-        if account[0] == username and check_password_hash(hash[0], password):
-            session["email"] = username  # let username be session
-            return redirect("/")
-        else:
+        # print("Password input: " + password)
+        # print(check_password_hash(hash[0], password))
+        if len(account) != 1 or not check_password_hash(var, password):
             flash('Please check your login details and try again.')
             return redirect("/login")
+        session["email"] = username
+        return redirect("/")
         # if username inputed is not in the retrieved list, then out put the message
     else:
+
         return render_template("login.html")
 
 
@@ -196,13 +199,15 @@ def register():
                     flash('Password does not match!', 'pass')
                     return render_template('register.html')
                 hash = generate_password_hash(password)
+                print(hash)
                 insertData = """INSERT INTO heroku_5e2677edc19745f.user1
                             (username,firstname, lastname, password)
                             VALUES (%s, %s, %s, %s)"""
 
                 cursor.execute(insertData, (username, firstname, lastname, hash))
+                session["email"]=username
                 conn.commit()
-                return redirect("/login")
+                return redirect("/")
     return render_template('register.html')
 
 
