@@ -35,10 +35,10 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 
-@app.after_request
-def add_header(response):
-    response.cache_control.max_age = 600
-    return response
+# @app.after_request
+# def add_header(response):
+#     response.cache_control.max_age = 600
+#     return response
 
 
 @app.route("/", methods=['GET', 'POST'])
