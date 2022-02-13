@@ -11,7 +11,7 @@ from cachetools import cached, TTLCache
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = 'chongfahresortandramadakhaolak'
 
 cache = TTLCache(maxsize=1024, ttl=6000)
 avge = TTLCache(maxsize=1024, ttl=6000)
