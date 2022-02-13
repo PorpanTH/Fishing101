@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, redirect, session, flash
 from flask_session import Session
 import datetime
@@ -22,10 +23,11 @@ app.config['MYSQL_DATABASE_PASSWORD'] = 'b48cfd68'
 app.config['MYSQL_DATABASE_DB'] = 'heroku_5e2677edc19745f'
 app.config['MYSQL_DATABASE_HOST'] = 'us-cdbr-east-04.cleardb.com'
 mysql.init_app(app)
-
+app.config['SECRET_KEY'] = os.urandom(24)
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+app.config['SESSION_COOKIE_NAME'] = "my_session"
 Session(app)
 
 @app.after_request
