@@ -1,6 +1,4 @@
 import os
-
-import waitress
 from flask import Flask, render_template, request, redirect, session, flash
 from flask_session import Session
 import datetime
@@ -361,6 +359,6 @@ def is_provided(field):
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
 
-if __name__ == '__main__':
-    port = int(os.getenv('PORT'))
-    waitress.serve(app, port=port)
+# if __name__ == '__main__':
+#     port = int(os.getenv('PORT'))
+#     waitress.serve(app, port=port)
