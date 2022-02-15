@@ -9,6 +9,7 @@ from werkzeug.exceptions import default_exceptions, HTTPException, InternalServe
 from flaskext.mysql import MySQL
 from cachetools import cached, TTLCache
 from werkzeug.security import check_password_hash, generate_password_hash
+import redis
 
 app = Flask(__name__)
 # app.secret_key = os.urandom(24)
@@ -27,7 +28,7 @@ mysql.init_app(app)
 app.config['SECRET_KEY'] = "chongfahresortandramadakhaolak"
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = True
-app.config["SESSION_TYPE"] = "RedisSessionInterface"
+app.config["SESSION_TYPE"] = "redis"
 app.config['SESSION_COOKIE_NAME'] = "my_session"
 Session(app)
 
