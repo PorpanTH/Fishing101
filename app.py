@@ -10,6 +10,7 @@ from flaskext.mysql import MySQL
 from cachetools import cached, TTLCache
 from werkzeug.security import check_password_hash, generate_password_hash
 
+
 app = Flask(__name__)
 # app.secret_key = os.urandom(24)
 
@@ -24,22 +25,25 @@ app.config['MYSQL_DATABASE_PASSWORD'] = 'b48cfd68'
 app.config['MYSQL_DATABASE_DB'] = 'heroku_5e2677edc19745f'
 app.config['MYSQL_DATABASE_HOST'] = 'us-cdbr-east-04.cleardb.com'
 mysql.init_app(app)
-app.config['SECRET_KEY'] = "chongfahresortandramadakhaolak"
-app.config["SESSION_FILE_DIR"] = mkdtemp()
-app.config["SESSION_PERMANENT"] = True
+app.secret_key = "chongfahresortandramadakhaolak"
+# app.config['SECRET_KEY'] = "chongfahresortandramadakhaolak"
+# app.config["SESSION_FILE_DIR"] = mkdtemp()
+# app.config["SESSION_PERMANENT"] = True
 # app.config["SESSION_TYPE"] = "filesystem"
-app.config['SESSION_COOKIE_NAME'] = "my_session"
+# app.config["SESSION_TYPE"] = "redis"
+# app.config['SESSION_COOKIE_NAME'] = "my_session" f
 
 # app.config['SESSION_TYPE'] = 'redis'
 # app.config['SESSION_PERMANENT'] = False
 # app.config['SESSION_USE_SIGNER'] = True
-# app.config['SESSION_REDIS'] = redis.from_url('redis://http://fishing-101.herokuapp.com')
-Session(app)
+# app.config['SESSION_REDIS'] = redis.from_url('redis://http://fishing-101.herokuapp.com') f
 
 # @app.before_request
 # def make_session_permanent():
 #     session.permanent = True
 #     app.permanent_session_lifetime = timedelta(minutes=300)
+
+
 @app.after_request
 def after_request(response):
     response.headers["Cache-Control"] = "public, no-store,max-age=604800, must-revalidate"
@@ -48,8 +52,9 @@ def after_request(response):
     return response
 
 @app.route("/", methods=['GET', 'POST'])
-@login_required
 def index():
+    if session.get("email") is None:
+        return redirect("/login")
     try:
         if request.method == 'POST':
             if request.form.get('action1') == '>':
@@ -161,8 +166,9 @@ def login():
 
 
 @app.route("/data", methods=['GET', 'POST'])
-@login_required
 def data():
+    if session.get("email") is None:
+        return redirect("/login")
     Current_Date, i = Date.get()
     Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
     Present_Date = Current_Date.strftime('%Y %b %d')
