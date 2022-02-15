@@ -2,16 +2,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="alert alert-danger"  role="alert">
-                    {{ messages[0] }}
-                </div>
-            {% endif %}
-            {% endwith %}
+
     <section class="hero is-info is-fullheight">
       <div class="form">
-
+    {% with messages = get_flashed_messages(category_filter=["pass"]) %}
+                        {% if messages %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ messages[0] }}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
             <form method="POST">
               <div class="field">
                 <label class="label">Username</label>

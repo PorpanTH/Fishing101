@@ -27,10 +27,14 @@ mysql.init_app(app)
 app.config['SECRET_KEY'] = "chongfahresortandramadakhaolak"
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = True
-app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_TYPE"] = "RedisSessionInterface"
 app.config['SESSION_COOKIE_NAME'] = "my_session"
 Session(app)
 
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(minutes=300)
 @app.after_request
 def after_request(response):
     response.headers["Cache-Control"] = "public, no-store,max-age=604800, must-revalidate"
@@ -140,9 +144,9 @@ def login():
 
         # print("Password input: " + password)
         # print(check_password_hash(hash[0], password))
-        if len(account) != 1 or not check_password_hash(hash[0], password):
-            flash('Please check your login details and try again.')
-            return redirect("/login")
+        if len(account) != 1 or not check_password_hash(hash[0], password) or len(password)==0:
+            flash('Please check your login details and try again.','pass')
+            return render_template("login.html")
         session["email"] = username
         return redirect("/")
         # if username inputed is not in the retrieved list, then out put the message
@@ -214,7 +218,6 @@ def register():
 @app.route("/logout")
 def logout():
     """Log user out"""
-
     # Forget any user_id
     session.clear()
 
