@@ -32,7 +32,7 @@ app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_TYPE"] = "filesystem"
 # app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=365)
 # app.config["SESSION_TYPE"] = "redis"
-# app.config['SESSION_COOKIE_NAME'] = "my_session" f
+# app.config['SESSION_COOKIE_NAME'] = "my_session"
 
 # app.config['SESSION_TYPE'] = 'redis'
 # app.config['SESSION_PERMANENT'] = False
@@ -359,5 +359,6 @@ def is_provided(field):
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+#     port = int(os.getenv('PORT'))
+#     app.run(debug=True, port=port)
