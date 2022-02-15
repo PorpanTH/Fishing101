@@ -27,7 +27,7 @@ mysql.init_app(app)
 app.config['SECRET_KEY'] = "chongfahresortandramadakhaolak"
 app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = True
-app.config["SESSION_TYPE"] = "filesystem"
+# app.config["SESSION_TYPE"] = "filesystem"
 app.config['SESSION_COOKIE_NAME'] = "my_session"
 
 # app.config['SESSION_TYPE'] = 'redis'
