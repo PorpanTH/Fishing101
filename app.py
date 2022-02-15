@@ -42,7 +42,7 @@ app.secret_key = "chongfahresortandramadakhaolak"
 # def make_session_permanent():
 #     session.permanent = True
 #     app.permanent_session_lifetime = timedelta(minutes=300)
-
+Session(app)
 
 @app.after_request
 def after_request(response):
