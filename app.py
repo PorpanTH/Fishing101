@@ -1,16 +1,14 @@
 from flask import Flask, render_template, request, redirect, session, flash
-from flask_session import Session
 import datetime
-from tempfile import mkdtemp
 import mysql.connector
 from helpers import apology, login_required
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from flaskext.mysql import MySQL
 from cachetools import cached, TTLCache
 from werkzeug.security import check_password_hash, generate_password_hash
-from os import environ
 import redis
 from flask_session import Session
+from flask.json import jsonify
 
 app = Flask(__name__)
 
@@ -64,6 +62,7 @@ def index():
             elif request.form.get('action2') == '<':
                 Current_Date, i = Date.minus(1)
             Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d 00:00:00')  # format the date to yyymmdd
+            session['datetime'] = Current_Date_Formatted
             NextDay_Date = Current_Date + datetime.timedelta(days=0)
             Date_Formatted = NextDay_Date.strftime('%b-%d')
             labels, values = graph()
