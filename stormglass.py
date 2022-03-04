@@ -1,4 +1,3 @@
-import time
 import requests
 import mysql.connector
 from extract import json_extract
@@ -139,8 +138,6 @@ try:
 
     cursor.executemany(insert_weather_data, value)
     cnx.commit()
-
-    # print("--- %s seconds ---" % (time.time() - start_time))
 
 except mysql.connector.Error as error:
     print("Failed to insert record into MySQL table {}".format(error))

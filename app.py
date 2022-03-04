@@ -1,4 +1,3 @@
-import os
 from flask import Flask, render_template, request, redirect, session, flash
 from flask_session import Session
 import datetime
@@ -9,14 +8,15 @@ from werkzeug.exceptions import default_exceptions, HTTPException, InternalServe
 from flaskext.mysql import MySQL
 from cachetools import cached, TTLCache
 from werkzeug.security import check_password_hash, generate_password_hash
+from os import environ
+import redis
+from flask_session import Session
 
 app = Flask(__name__)
-# app.secret_key = os.urandom(24)
 
 cache = TTLCache(maxsize=1024, ttl=6000)
 avge = TTLCache(maxsize=1024, ttl=6000)
 suggest = TTLCache(maxsize=100, ttl=6000)
-
 
 mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = 'ba74ba05397a99'
@@ -25,37 +25,38 @@ app.config['MYSQL_DATABASE_DB'] = 'heroku_5e2677edc19745f'
 app.config['MYSQL_DATABASE_HOST'] = 'us-cdbr-east-04.cleardb.com'
 mysql.init_app(app)
 
-# app.secret_key = 'chongfahresortandramadakhaolak'
 app.config['SECRET_KEY'] = "chongfahresortandramadakhaolak"
-app.config["SESSION_FILE_DIR"] = mkdtemp()
-# app.config["SESSION_PERMANENT"] = True
-app.config["SESSION_TYPE"] = "filesystem"
-# app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=365)
-# app.config["SESSION_TYPE"] = "redis"
-# app.config['SESSION_COOKIE_NAME'] = "my_session"
-
-# app.config['SESSION_TYPE'] = 'redis'
-# app.config['SESSION_PERMANENT'] = False
-# app.config['SESSION_USE_SIGNER'] = True
-# app.config['SESSION_REDIS'] = redis.from_url('redis://http://fishing-101.herokuapp.com') f
+app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_USE_SIGNER'] = True
+app.config['SESSION_REDIS'] = redis.Redis(host='redis-16378.c1.ap-southeast-1-1.ec2.cloud.redislabs.com', port='16378',
+                password='OW7GHO739Nnz5k3SyliJS6ECVQODdQB1')
 #
+# from_url('redis://OW7GHO739Nnz5k3SyliJS6ECVQODdQB1@redis-16378.c1.ap-southeast-1-1.ec2.cloud.redislabs.com:16378')
+
+server_session = Session(app)
+# app.config["SESSION_PERMANENT"] = True
+# SESSION_TYPE = environ.get('redis')
+# SESSION_REDIS = redis.from_url(environ.get('redis://:OW7GHO739Nnz5k3SyliJS6ECVQODdQB1@redis-16378.c1.ap-southeast-1-1.ec2.cloud.redislabs.com:16378'))
+# app.config["SESSION_TYPE"] = "redis"
+# app.config['SESSION_REDIS'] = "redis://:OW7GHO739Nnz5k3SyliJS6ECVQODdQB1@redis-16378.c1.ap-southeast-1-1.ec2.cloud.redislabs.com:16378"
+
+
 @app.before_request
 def make_session_permanent():
     session.permanent = True
-    app.permanent_session_lifetime = datetime.timedelta(minutes=300)
-Session(app)
+    app.permanent_session_lifetime = datetime.timedelta(minutes=30)
 
 @app.after_request
 def after_request(response):
     response.headers["Cache-Control"] = "public, no-store,max-age=604800, must-revalidate"
-    response.headers["Expires"] = 6000
+    response.headers["Expires"] = 600
     # response.headers["Pragma"] = "no-cache"
     return response
 
 @app.route("/", methods=['GET', 'POST'])
+@login_required
 def index():
-    if session.get("email") is None:
-        return redirect("/login")
     try:
         if request.method == 'POST':
             if request.form.get('action1') == '>':
@@ -158,6 +159,7 @@ def login():
         if len(account) != 1 or not check_password_hash(hash[0], password) or len(password)==0:
             flash('Please check your login details and try again.','pass')
             return render_template("login.html")
+        #if username and password are correct initiate the session and go to home page
         session["email"] = username
         return redirect("/")
         # if username inputed is not in the retrieved list, then out put the message
@@ -167,9 +169,10 @@ def login():
 
 
 @app.route("/data", methods=['GET', 'POST'])
+@login_required
 def data():
-    if session.get("email") is None:
-        return redirect("/login")
+    # if session.get("email") is None:
+    #     return redirect("/login")
     Current_Date, i = Date.get()
     Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
     Present_Date = Current_Date.strftime('%Y %b %d')
@@ -243,8 +246,9 @@ def graph():
     conn = mysql.connect()
     cursor = conn.cursor()
 
-    sql = "select * from ( select datetime, score from heroku_5e2677edc19745f.weather_storm order by datetime desc limit 1000 ) t order by datetime asc"
-
+    sql = "select * from ( select datetime, score from heroku_5e2677edc19745f.weather_storm order by datetime desc limit 1000 ) " \
+          "t order by datetime asc"
+    #selecting the last 1000 rows and return them in ascending order
     cursor.execute(sql)
 
     # get all records
@@ -264,7 +268,7 @@ def avg():
     cursor = conn.cursor()
 
     sql_select_Query = "select datetime, fscore from heroku_5e2677edc19745f.average order by datetime asc "
-
+    #select datas from the average table, order day by ascending
     cursor.execute(sql_select_Query)
     # get all records
     records = cursor.fetchall()
@@ -298,7 +302,8 @@ def sugggestion():
     conn = mysql.connect()
     cursor = conn.cursor()
 
-    sql_select_Query = "select * from heroku_5e2677edc19745f.average where MONTH(datetime) = MONTH(CURDATE()) order by fscore desc limit 3 "
+    sql_select_Query = "select * from heroku_5e2677edc19745f.average" \
+                       " where MONTH(datetime) = MONTH(CURDATE()) order by fscore desc limit 3 "
 
     cursor.execute(sql_select_Query)
     records = cursor.fetchall()
@@ -307,15 +312,15 @@ def sugggestion():
 
 def binary_search(arr, low, high, x):
     if high >= low:
-        mid = (high + low) // 2
-        if arr[mid] == x:
-            return mid
-        elif arr[mid] > x:
-            return binary_search(arr, low, mid - 1, x)
+        mid = (high + low) // 2 #find the middle index
+        if arr[mid] == x: #check if the value at mid is what we want to find
+            return mid #return this middle index if yes
+        elif arr[mid] > x: #check if the value at mid is greater than what we want to find
+            return binary_search(arr, low, mid - 1, x) #call the function again, update high to mid -1
         else:
-            return binary_search(arr, mid + 1, high, x)
+            return binary_search(arr, mid + 1, high, x) #call the function again, update low to mid +1
     else:
-        return -1
+        return -1 #if not found return -1
 
 
 class Date:
@@ -338,12 +343,6 @@ class Date:
     def get(cls):
         return cls.currentDate, cls.i
 
-
-# @app.errorhandler(500)
-# def internal_error(error):
-#     Curre
-#     return "500 error"
-
 def errorhandler(e):
     """Handle error"""
     if not isinstance(e, HTTPException):
@@ -358,7 +357,3 @@ def is_provided(field):
 
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
-
-# if __name__ == '__main__':
-#     port = int(os.getenv('PORT'))
-#     waitress.serve(app, port=port)
