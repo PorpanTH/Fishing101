@@ -58,11 +58,15 @@ def index():
     try:
         if request.method == 'POST':
             if request.form.get('action1') == '>':
-                Current_Date, i = Date.add(1)  # navigating date using class
+                session["count"] += 1
+                days = session["count"]
+                Current_Date = add(days)# navigating date using class
             elif request.form.get('action2') == '<':
-                Current_Date, i = Date.minus(1)
+                session["count"] -= 1
+                days = session["count"]
+                Current_Date = add(days)
             Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d 00:00:00')  # format the date to yyymmdd
-            session['datetime'] = Current_Date_Formatted
+
             NextDay_Date = Current_Date + datetime.timedelta(days=0)
             Date_Formatted = NextDay_Date.strftime('%b-%d')
             labels, values = graph()
@@ -97,7 +101,11 @@ def index():
             }  # combine all data into a dictionary for faster HTML connection
             return render_template("graph.html", **context)
         else:
-            Current_Date, i = Date.get()
+            if not "count" in session:
+                session["count"] = 0
+            days = session["count"]
+            Current_Date = add(days)
+            # Current_Date, i = Date.get()
             Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d 00:00:00')  # format the date to ddmmyyyy
             NextDay_Date = Current_Date + datetime.timedelta(days=0)
             Date_Formatted = NextDay_Date.strftime('%b-%d')
@@ -129,7 +137,8 @@ def index():
             }
             return render_template("graph.html", **context)
     except:
-        Current_Date, i = Date.minus(1)
+        # Current_Date, i = Date.minus(1)
+        session["count"] -= 1
         flash('No data available for this date. Sorry.')
         return redirect("/")
 
@@ -172,7 +181,8 @@ def login():
 def data():
     # if session.get("email") is None:
     #     return redirect("/login")
-    Current_Date, i = Date.get()
+    days = session["count"]
+    Current_Date = add(days)
     Current_Date_Formatted = Current_Date.strftime('%Y-%m-%d')  # format the date to ddmmyyyy
     Present_Date = Current_Date.strftime('%Y %b %d')
     NextDay_Date = Current_Date + datetime.timedelta(days=1)
@@ -322,25 +332,28 @@ def binary_search(arr, low, high, x):
         return -1 #if not found return -1
 
 
-class Date:
+# class Date:
+    # currentDate = datetime.datetime.today()
+    # i = 0
+    # def __init__(self):
+    #     self.currentDate = datetime.datetime.today()
+    #     self.i = 0
+    # @classmethod
+def add(x):
     currentDate = datetime.datetime.today()
-    i = 0
+    currentDate += datetime.timedelta(days=x)
 
-    @classmethod
-    def add(cls, x):
-        cls.currentDate += datetime.timedelta(days=x)
-        cls.i += x
-        return cls.currentDate, cls.i
+    return currentDate
 
-    @classmethod
-    def minus(cls, x):
-        cls.currentDate -= datetime.timedelta(days=x)
-        cls.i -= x
-        return cls.currentDate, cls.i
+# @classmethod
+def minus(x):
+    currentDate = datetime.datetime.today()
+    currentDate -= datetime.timedelta(days=x)
 
-    @classmethod
-    def get(cls):
-        return cls.currentDate, cls.i
+    return currentDate
+    #
+    # def get(self):
+    #     return self.currentDate, self.i
 
 def errorhandler(e):
     """Handle error"""
