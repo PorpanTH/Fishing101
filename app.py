@@ -8,7 +8,6 @@ from cachetools import cached, TTLCache
 from werkzeug.security import check_password_hash, generate_password_hash
 import redis
 from flask_session import Session
-from flask.json import jsonify
 
 app = Flask(__name__)
 
@@ -29,28 +28,20 @@ app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_USE_SIGNER'] = True
 app.config['SESSION_REDIS'] = redis.Redis(host='redis-16378.c1.ap-southeast-1-1.ec2.cloud.redislabs.com', port='16378',
                 password='OW7GHO739Nnz5k3SyliJS6ECVQODdQB1')
-#
-# from_url('redis://OW7GHO739Nnz5k3SyliJS6ECVQODdQB1@redis-16378.c1.ap-southeast-1-1.ec2.cloud.redislabs.com:16378')
 
 server_session = Session(app)
-# app.config["SESSION_PERMANENT"] = True
-# SESSION_TYPE = environ.get('redis')
-# SESSION_REDIS = redis.from_url(environ.get('redis://:OW7GHO739Nnz5k3SyliJS6ECVQODdQB1@redis-16378.c1.ap-southeast-1-1.ec2.cloud.redislabs.com:16378'))
-# app.config["SESSION_TYPE"] = "redis"
-# app.config['SESSION_REDIS'] = "redis://:OW7GHO739Nnz5k3SyliJS6ECVQODdQB1@redis-16378.c1.ap-southeast-1-1.ec2.cloud.redislabs.com:16378"
 
-
-@app.before_request
-def make_session_permanent():
-    session.permanent = True
-    app.permanent_session_lifetime = datetime.timedelta(minutes=30)
-
-@app.after_request
-def after_request(response):
-    response.headers["Cache-Control"] = "public, no-store,max-age=604800, must-revalidate"
-    response.headers["Expires"] = 600
-    # response.headers["Pragma"] = "no-cache"
-    return response
+# @app.before_request
+# def make_session_permanent():
+#     session.permanent = True
+#     app.permanent_session_lifetime = datetime.timedelta(minutes=30)
+#
+# @app.after_request
+# def after_request(response):
+#     response.headers["Cache-Control"] = "public, no-store,max-age=604800, must-revalidate"
+#     response.headers["Expires"] = 600
+#     #tells the HTML to clear the stored data after 10 minutes
+#     return response
 
 @app.route("/", methods=['GET', 'POST'])
 @login_required
