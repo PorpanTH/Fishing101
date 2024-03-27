@@ -32,7 +32,7 @@ response = requests.get(
         'params': ','.join(['swellHeight', 'swellPeriod', 'windSpeed']),
     },
     headers={
-        'Authorization': 'c95a4c7a-f811-11eb-862d-0242ac130002-c95a4cf2-f811-11eb-862d-0242ac130002'
+        'Authorization': 
     }
 )
 response1 = requests.get(
@@ -42,7 +42,7 @@ response1 = requests.get(
         'lng': 98.414624,
     },
     headers={
-        'Authorization': 'c95a4c7a-f811-11eb-862d-0242ac130002-c95a4cf2-f811-11eb-862d-0242ac130002'
+        'Authorization': 
     }
 )
 
