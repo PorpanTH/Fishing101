@@ -16,18 +16,18 @@ avge = TTLCache(maxsize=1024, ttl=6000)
 suggest = TTLCache(maxsize=100, ttl=6000)
 
 mysql = MySQL()
-app.config['MYSQL_DATABASE_USER'] = 'ba74ba05397a99'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'b48cfd68'
-app.config['MYSQL_DATABASE_DB'] = 'heroku_5e2677edc19745f'
-app.config['MYSQL_DATABASE_HOST'] = 'us-cdbr-east-04.cleardb.com'
+app.config['MYSQL_DATABASE_USER'] = 
+app.config['MYSQL_DATABASE_PASSWORD'] = 
+app.config['MYSQL_DATABASE_DB'] = 
+app.config['MYSQL_DATABASE_HOST'] = '
 mysql.init_app(app)
 
-app.config['SECRET_KEY'] = "chongfahresortandramadakhaolak"
+app.config['SECRET_KEY'] = 
 app.config['SESSION_TYPE'] = 'redis'
 app.config['SESSION_PERMANENT'] = False
 app.config['SESSION_USE_SIGNER'] = True
 app.config['SESSION_REDIS'] = redis.Redis(host='redis-16378.c1.ap-southeast-1-1.ec2.cloud.redislabs.com', port='16378',
-                password='OW7GHO739Nnz5k3SyliJS6ECVQODdQB1')
+                password='')
 
 server_session = Session(app)
 
